@@ -1,0 +1,104 @@
+2021-03-19 17:22:18.220 [background-preinit] INFO  org.hibernate.validator.internal.util.Version - HV000001: Hibernate Validator 5.4.1.Final
+2021-03-19 17:22:18.266 [main] INFO  hs.algorithmplatform.AlgorithmplatformApplication - Starting AlgorithmplatformApplication on lxd with PID 1892 (E:\project\2021_Project\algorithmplatform\target\classes started by zaixz in E:\project\2021_Project\algorithmplatform)
+2021-03-19 17:22:18.267 [main] INFO  hs.algorithmplatform.AlgorithmplatformApplication - No active profile set, falling back to default profiles: default
+2021-03-19 17:22:19.417 [main] INFO  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker - Bean 'asyncSchedulingConfiguration' of type [hs.algorithmplatform.config.AsyncSchedulingConfiguration$$EnhancerBySpringCGLIB$$8ce728a6] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2021-03-19 17:22:19.712 [main] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat initialized with port(s): 1234 (http)
+2021-03-19 17:22:19.722 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-1234"]
+2021-03-19 17:22:19.723 [main] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2021-03-19 17:22:19.723 [main] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/9.0.41]
+2021-03-19 17:22:19.725 [main] INFO  org.apache.catalina.core.AprLifecycleListener - An older version [1.2.19] of the Apache Tomcat Native library is installed, while Tomcat recommends a minimum version of [1.2.23]
+2021-03-19 17:22:19.725 [main] INFO  org.apache.catalina.core.AprLifecycleListener - Loaded Apache Tomcat Native library [1.2.19] using APR version [1.6.5].
+2021-03-19 17:22:19.725 [main] INFO  org.apache.catalina.core.AprLifecycleListener - APR capabilities: IPv6 [true], sendfile [true], accept filters [false], random [true].
+2021-03-19 17:22:19.725 [main] INFO  org.apache.catalina.core.AprLifecycleListener - APR/OpenSSL configuration: useAprConnector [false], useOpenSSL [true]
+2021-03-19 17:22:19.744 [main] INFO  org.apache.catalina.core.AprLifecycleListener - OpenSSL successfully initialized [OpenSSL 1.1.1a  20 Nov 2018]
+2021-03-19 17:22:19.848 [main] INFO  o.a.c.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2021-03-19 17:22:19.848 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1520 ms
+2021-03-19 17:22:20.118 [main] INFO  o.s.scheduling.concurrent.ThreadPoolTaskScheduler - Initializing ExecutorService 'taskScheduler'
+2021-03-19 17:22:20.797 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-1234"]
+2021-03-19 17:22:20.813 [main] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat started on port(s): 1234 (http) with context path ''
+2021-03-19 17:22:20.877 [main] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat initialized with port(s): 1235 (http)
+2021-03-19 17:22:20.877 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-1235"]
+2021-03-19 17:22:20.877 [main] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2021-03-19 17:22:20.878 [main] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/9.0.41]
+2021-03-19 17:22:20.901 [main] INFO  o.a.c.c.ContainerBase.[Tomcat-1].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2021-03-19 17:22:20.901 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 83 ms
+2021-03-19 17:22:20.914 [main] INFO  o.s.b.actuate.endpoint.web.EndpointLinksResolver - Exposing 14 endpoint(s) beneath base path '/actuator'
+2021-03-19 17:22:20.955 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-1235"]
+2021-03-19 17:22:20.960 [main] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat started on port(s): 1235 (http) with context path ''
+2021-03-19 17:22:20.973 [main] INFO  hs.algorithmplatform.AlgorithmplatformApplication - Started AlgorithmplatformApplication in 3.625 seconds (JVM running for 6.249)
+2021-03-19 17:22:21.214 [RMI TCP Connection(3)-192.168.183.1] INFO  o.a.c.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2021-03-19 17:22:21.214 [RMI TCP Connection(3)-192.168.183.1] INFO  org.springframework.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2021-03-19 17:22:21.225 [RMI TCP Connection(3)-192.168.183.1] INFO  org.springframework.web.servlet.DispatcherServlet - Completed initialization in 10 ms
+2021-03-19 17:23:42.057 [http-nio-1234-exec-1] INFO  hs.algorithmplatform.controller.Algorithmoperate - {"basemodleparam":{"auto":1.0,"controlapcoutcycle":10.0,"controltime_M":"2","modelid":1372370319733493762,"modelname":"DMC-1","modeltype":"algorithmDMC","predicttime_P":"25","runstyle":0,"timeserise_N":"50"},"ff":[{"ffpinname":"ff1","ffpinvalue":-70.32966}],"model":[{"inputpinname":"mv1","k":-10.0,"ki":0.0,"outputpinname":"pv1","t":60.0,"tau":10.0},{"inputpinname":"ff1","k":1.0,"ki":0.0,"outputpinname":"pv1","t":30.0,"tau":0.0}],"mv":[{"dmvhigh":0.5,"dmvlow":0.0,"mvdownpinvalue":35.0,"mvfbpinvalue":40.915752,"mvpinname":"mv1","mvpinvalue":45.0,"mvuppinvalue":45.0,"r":10.0}],"outputparam":[{"outputpinname":"mv1"}],"pv":[{"deadzone":10.0,"funelinitvalue":5.0,"funneltype":"fullfunnel","pvpinname":"pv1","pvpinvalue":-70.32966,"q":1.0,"refertrajectorycoef":0.2,"sppinvalue":-100.0,"tracoefmethod":"before"}]}
+2021-03-19 17:23:42.069 [http-nio-1234-exec-1] INFO  hs.algorithmplatform.controller.Algorithmoperate - first time call
+2021-03-19 17:23:42.071 [http-nio-1234-exec-1] INFO  h.a.entity.model.controlmodle.MPCModle - in docomputeprocess
+2021-03-19 17:23:42.131 [nioEventLoopGroup-3-1] INFO  h.a.pydriver.pyproxyserve.MsgDecoder_Inbound - come in 127.0.0.1:52237
+2021-03-19 17:28:47.407 [background-preinit] INFO  org.hibernate.validator.internal.util.Version - HV000001: Hibernate Validator 5.4.1.Final
+2021-03-19 17:28:47.441 [main] INFO  hs.algorithmplatform.AlgorithmplatformApplication - Starting AlgorithmplatformApplication on lxd with PID 3132 (E:\project\2021_Project\algorithmplatform\target\classes started by zaixz in E:\project\2021_Project\algorithmplatform)
+2021-03-19 17:28:47.442 [main] INFO  hs.algorithmplatform.AlgorithmplatformApplication - No active profile set, falling back to default profiles: default
+2021-03-19 17:28:48.396 [main] INFO  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker - Bean 'asyncSchedulingConfiguration' of type [hs.algorithmplatform.config.AsyncSchedulingConfiguration$$EnhancerBySpringCGLIB$$23395d84] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2021-03-19 17:28:48.623 [main] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat initialized with port(s): 1234 (http)
+2021-03-19 17:28:48.631 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-1234"]
+2021-03-19 17:28:48.632 [main] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2021-03-19 17:28:48.632 [main] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/9.0.41]
+2021-03-19 17:28:48.633 [main] INFO  org.apache.catalina.core.AprLifecycleListener - An older version [1.2.19] of the Apache Tomcat Native library is installed, while Tomcat recommends a minimum version of [1.2.23]
+2021-03-19 17:28:48.633 [main] INFO  org.apache.catalina.core.AprLifecycleListener - Loaded Apache Tomcat Native library [1.2.19] using APR version [1.6.5].
+2021-03-19 17:28:48.634 [main] INFO  org.apache.catalina.core.AprLifecycleListener - APR capabilities: IPv6 [true], sendfile [true], accept filters [false], random [true].
+2021-03-19 17:28:48.634 [main] INFO  org.apache.catalina.core.AprLifecycleListener - APR/OpenSSL configuration: useAprConnector [false], useOpenSSL [true]
+2021-03-19 17:28:48.637 [main] INFO  org.apache.catalina.core.AprLifecycleListener - OpenSSL successfully initialized [OpenSSL 1.1.1a  20 Nov 2018]
+2021-03-19 17:28:48.731 [main] INFO  o.a.c.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2021-03-19 17:28:48.731 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1228 ms
+2021-03-19 17:28:48.927 [main] INFO  o.s.scheduling.concurrent.ThreadPoolTaskScheduler - Initializing ExecutorService 'taskScheduler'
+2021-03-19 17:28:49.495 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-1234"]
+2021-03-19 17:28:49.511 [main] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat started on port(s): 1234 (http) with context path ''
+2021-03-19 17:28:49.566 [main] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat initialized with port(s): 1235 (http)
+2021-03-19 17:28:49.567 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-1235"]
+2021-03-19 17:28:49.567 [main] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2021-03-19 17:28:49.568 [main] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/9.0.41]
+2021-03-19 17:28:49.590 [main] INFO  o.a.c.c.ContainerBase.[Tomcat-1].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2021-03-19 17:28:49.591 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 76 ms
+2021-03-19 17:28:49.604 [main] INFO  o.s.b.actuate.endpoint.web.EndpointLinksResolver - Exposing 14 endpoint(s) beneath base path '/actuator'
+2021-03-19 17:28:49.651 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-1235"]
+2021-03-19 17:28:49.654 [main] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat started on port(s): 1235 (http) with context path ''
+2021-03-19 17:28:49.671 [main] INFO  hs.algorithmplatform.AlgorithmplatformApplication - Started AlgorithmplatformApplication in 2.893 seconds (JVM running for 4.002)
+2021-03-19 17:28:49.731 [RMI TCP Connection(1)-192.168.183.1] INFO  o.a.c.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2021-03-19 17:28:49.732 [RMI TCP Connection(1)-192.168.183.1] INFO  org.springframework.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2021-03-19 17:28:49.740 [RMI TCP Connection(1)-192.168.183.1] INFO  org.springframework.web.servlet.DispatcherServlet - Completed initialization in 8 ms
+2021-03-19 17:29:33.942 [http-nio-1234-exec-1] INFO  hs.algorithmplatform.controller.Algorithmoperate - {"basemodleparam":{"auto":1.0,"controlapcoutcycle":10.0,"controltime_M":"2","modelid":1372370319733493762,"modelname":"DMC-1","modeltype":"algorithmDMC","predicttime_P":"25","runstyle":0,"timeserise_N":"50"},"ff":[{"ffpinname":"ff1","ffpinvalue":-70.32966}],"model":[{"inputpinname":"mv1","k":-10.0,"ki":0.0,"outputpinname":"pv1","t":60.0,"tau":10.0},{"inputpinname":"ff1","k":1.0,"ki":0.0,"outputpinname":"pv1","t":30.0,"tau":0.0}],"mv":[{"dmvhigh":0.5,"dmvlow":0.0,"mvdownpinvalue":35.0,"mvfbpinvalue":40.915752,"mvpinname":"mv1","mvpinvalue":45.0,"mvuppinvalue":45.0,"r":10.0}],"outputparam":[{"outputpinname":"mv1"}],"pv":[{"deadzone":10.0,"funelinitvalue":5.0,"funneltype":"fullfunnel","pvpinname":"pv1","pvpinvalue":-70.32966,"q":1.0,"refertrajectorycoef":0.2,"sppinvalue":-100.0,"tracoefmethod":"before"}]}
+2021-03-19 17:29:51.915 [http-nio-1234-exec-1] INFO  hs.algorithmplatform.controller.Algorithmoperate - first time call
+2021-03-19 17:29:51.918 [http-nio-1234-exec-1] INFO  h.a.entity.model.controlmodle.MPCModle - in docomputeprocess
+2021-03-19 17:29:51.954 [nioEventLoopGroup-3-1] INFO  h.a.pydriver.pyproxyserve.MsgDecoder_Inbound - come in 127.0.0.1:54430
+2021-03-19 17:29:51.975 [nioEventLoopGroup-3-1] INFO  hs.algorithmplatform.pydriver.command.CommandImp - {"msg":"timeout","nodeid":-536801278,"scriptName":"dmc"} 
+2021-03-19 17:29:51.977 [nioEventLoopGroup-3-1] INFO  h.a.pydriver.pyproxyserve.MsgDecoder_Inbound - {"msg":"timeout","scriptName":"dmc","nodeid":-536801278}
+2021-03-19 17:40:06.015 [background-preinit] INFO  org.hibernate.validator.internal.util.Version - HV000001: Hibernate Validator 5.4.1.Final
+2021-03-19 17:40:06.046 [main] INFO  hs.algorithmplatform.AlgorithmplatformApplication - Starting AlgorithmplatformApplication on lxd with PID 18012 (E:\project\2021_Project\algorithmplatform\target\classes started by zaixz in E:\project\2021_Project\algorithmplatform)
+2021-03-19 17:40:06.046 [main] INFO  hs.algorithmplatform.AlgorithmplatformApplication - No active profile set, falling back to default profiles: default
+2021-03-19 17:40:06.990 [main] INFO  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker - Bean 'asyncSchedulingConfiguration' of type [hs.algorithmplatform.config.AsyncSchedulingConfiguration$$EnhancerBySpringCGLIB$$5a317b9e] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2021-03-19 17:40:07.240 [main] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat initialized with port(s): 1234 (http)
+2021-03-19 17:40:07.247 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-1234"]
+2021-03-19 17:40:07.248 [main] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2021-03-19 17:40:07.248 [main] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/9.0.41]
+2021-03-19 17:40:07.250 [main] INFO  org.apache.catalina.core.AprLifecycleListener - An older version [1.2.19] of the Apache Tomcat Native library is installed, while Tomcat recommends a minimum version of [1.2.23]
+2021-03-19 17:40:07.250 [main] INFO  org.apache.catalina.core.AprLifecycleListener - Loaded Apache Tomcat Native library [1.2.19] using APR version [1.6.5].
+2021-03-19 17:40:07.250 [main] INFO  org.apache.catalina.core.AprLifecycleListener - APR capabilities: IPv6 [true], sendfile [true], accept filters [false], random [true].
+2021-03-19 17:40:07.250 [main] INFO  org.apache.catalina.core.AprLifecycleListener - APR/OpenSSL configuration: useAprConnector [false], useOpenSSL [true]
+2021-03-19 17:40:07.253 [main] INFO  org.apache.catalina.core.AprLifecycleListener - OpenSSL successfully initialized [OpenSSL 1.1.1a  20 Nov 2018]
+2021-03-19 17:40:07.348 [main] INFO  o.a.c.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2021-03-19 17:40:07.348 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1241 ms
+2021-03-19 17:40:07.535 [main] INFO  o.s.scheduling.concurrent.ThreadPoolTaskScheduler - Initializing ExecutorService 'taskScheduler'
+2021-03-19 17:40:08.257 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-1234"]
+2021-03-19 17:40:08.274 [main] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat started on port(s): 1234 (http) with context path ''
+2021-03-19 17:40:08.355 [main] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat initialized with port(s): 1235 (http)
+2021-03-19 17:40:08.356 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-1235"]
+2021-03-19 17:40:08.357 [main] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2021-03-19 17:40:08.358 [main] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/9.0.41]
+2021-03-19 17:40:08.389 [main] INFO  o.a.c.c.ContainerBase.[Tomcat-1].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2021-03-19 17:40:08.389 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 110 ms
+2021-03-19 17:40:08.402 [main] INFO  o.s.b.actuate.endpoint.web.EndpointLinksResolver - Exposing 14 endpoint(s) beneath base path '/actuator'
+2021-03-19 17:40:08.460 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-1235"]
+2021-03-19 17:40:08.464 [main] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat started on port(s): 1235 (http) with context path ''
+2021-03-19 17:40:08.480 [main] INFO  hs.algorithmplatform.AlgorithmplatformApplication - Started AlgorithmplatformApplication in 3.236 seconds (JVM running for 4.652)
+2021-03-19 17:40:08.826 [RMI TCP Connection(5)-192.168.183.1] INFO  o.a.c.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2021-03-19 17:40:08.826 [RMI TCP Connection(5)-192.168.183.1] INFO  org.springframework.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2021-03-19 17:40:08.832 [RMI TCP Connection(5)-192.168.183.1] INFO  org.springframework.web.servlet.DispatcherServlet - Completed initialization in 6 ms
+2021-03-19 17:40:23.384 [http-nio-1234-exec-2] INFO  hs.algorithmplatform.controller.Algorithmoperate - "{\r\n    \"basemodleparam\": {\r\n        \"auto\": 1.0,\r\n        \"controlapcoutcycle\": 10.0,\r\n        \"controltime_M\": \"2\",\r\n        \"modelid\": 1372370319733493762,\r\n        \"modelname\": \"DMC-1\",\r\n        \"modeltype\": \"algorithmDMC\",\r\n        \"predicttime_P\": \"25\",\r\n        \"runstyle\": 0,\r\n        \"timeserise_N\": \"50\"\r\n    },\r\n    \"ff\": [\r\n        {\r\n            \"ffpinname\": \"ff1\",\r\n            \"ffpinvalue\": -70.32966\r\n        }\r\n    ],\r\n    \"model\": [\r\n        {\r\n            \"inputpinname\": \"mv1\",\r\n            \"k\": -10.0,\r\n            \"ki\": 0.0,\r\n            \"outputpinname\": \"pv1\",\r\n            \"t\": 60.0,\r\n            \"tau\": 10.0\r\n        },\r\n        {\r\n            \"inputpinname\": \"ff1\",\r\n            \"k\": 1.0,\r\n            \"ki\": 0.0,\r\n            \"outputpinname\": \"pv1\",\r\n            \"t\": 30.0,\r\n            \"tau\": 0.0\r\n        }\r\n    ],\r\n    \"mv\": [\r\n        {\r\n            \"dmvhigh\": 0.5,\r\n            \"dmvlow\": 0.0,\r\n            \"mvdownpinvalue\": 35.0,\r\n            \"mvfbpinvalue\": 40.915752,\r\n            \"mvpinname\": \"mv1\",\r\n            \"mvpinvalue\": 45.0,\r\n            \"mvuppinvalue\": 45.0,\r\n            \"r\": 10.0\r\n        }\r\n    ],\r\n    \"outputparam\": [\r\n        {\r\n            \"outputpinname\": \"mv1\"\r\n        }\r\n    ],\r\n    \"pv\": [\r\n        {\r\n            \"deadzone\": 10.0,\r\n            \"funelinitvalue\": 5.0,\r\n            \"funneltype\": \"fullfunnel\",\r\n            \"pvpinname\": \"pv1\",\r\n            \"pvpinvalue\": -70.32966,\r\n            \"q\": 1.0,\r\n            \"refertrajectorycoef\": 0.2,\r\n            \"sppinvalue\": -100.0,\r\n            \"tracoefmethod\": \"before\"\r\n        }\r\n    ]\r\n}"

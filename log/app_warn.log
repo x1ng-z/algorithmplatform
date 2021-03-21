@@ -1,0 +1,83 @@
+2021-03-18 14:32:03.565 [http-nio-1234-exec-1] WARN  o.s.w.s.m.support.DefaultHandlerExceptionResolver - Resolved [org.springframework.http.converter.HttpMessageNotReadableException: JSON parse error: Unexpected character ('/' (code 47)): maybe a (non-standard) comment? (not recognized as one since Feature 'ALLOW_COMMENTS' not enabled for parser); nested exception is com.fasterxml.jackson.databind.JsonMappingException: Unexpected character ('/' (code 47)): maybe a (non-standard) comment? (not recognized as one since Feature 'ALLOW_COMMENTS' not enabled for parser)
+ at [Source: (PushbackInputStream); line: 22, column: 14] (through reference chain: hs.algorithmplatform.entity.DTO.dmc.request.DmcModleAdapter["pv"]->java.util.ArrayList[0])]
+2021-03-18 14:32:46.758 [http-nio-1234-exec-2] WARN  o.s.w.s.m.support.DefaultHandlerExceptionResolver - Resolved [org.springframework.web.HttpMediaTypeNotSupportedException: Content type '' not supported]
+2021-03-18 14:32:52.629 [http-nio-1234-exec-3] WARN  o.s.w.s.m.support.DefaultHandlerExceptionResolver - Resolved [org.springframework.http.converter.HttpMessageNotReadableException: JSON parse error: Unexpected character ('/' (code 47)): maybe a (non-standard) comment? (not recognized as one since Feature 'ALLOW_COMMENTS' not enabled for parser); nested exception is com.fasterxml.jackson.databind.JsonMappingException: Unexpected character ('/' (code 47)): maybe a (non-standard) comment? (not recognized as one since Feature 'ALLOW_COMMENTS' not enabled for parser)
+ at [Source: (PushbackInputStream); line: 22, column: 14] (through reference chain: hs.algorithmplatform.entity.DTO.dmc.request.DmcModleAdapter["pv"]->java.util.ArrayList[0])]
+2021-03-18 14:36:11.982 [http-nio-1234-exec-1] WARN  o.s.w.s.m.support.DefaultHandlerExceptionResolver - Resolved [org.springframework.http.converter.HttpMessageNotReadableException: JSON parse error: Unexpected character ('/' (code 47)): maybe a (non-standard) comment? (not recognized as one since Feature 'ALLOW_COMMENTS' not enabled for parser); nested exception is com.fasterxml.jackson.databind.JsonMappingException: Unexpected character ('/' (code 47)): maybe a (non-standard) comment? (not recognized as one since Feature 'ALLOW_COMMENTS' not enabled for parser)
+ at [Source: (PushbackInputStream); line: 22, column: 13] (through reference chain: hs.algorithmplatform.entity.DTO.dmc.request.DmcModleAdapter["pv"]->java.util.ArrayList[0])]
+2021-03-18 14:36:20.181 [http-nio-1234-exec-2] WARN  o.s.w.s.m.support.DefaultHandlerExceptionResolver - Resolved [org.springframework.http.converter.HttpMessageNotReadableException: JSON parse error: Unexpected character ('/' (code 47)): maybe a (non-standard) comment? (not recognized as one since Feature 'ALLOW_COMMENTS' not enabled for parser); nested exception is com.fasterxml.jackson.databind.JsonMappingException: Unexpected character ('/' (code 47)): maybe a (non-standard) comment? (not recognized as one since Feature 'ALLOW_COMMENTS' not enabled for parser)
+ at [Source: (PushbackInputStream); line: 23, column: 13] (through reference chain: hs.algorithmplatform.entity.DTO.dmc.request.DmcModleAdapter["pv"]->java.util.ArrayList[0])]
+2021-03-18 14:44:08.966 [http-nio-1234-exec-1] WARN  o.s.w.s.m.support.DefaultHandlerExceptionResolver - Resolved [org.springframework.http.converter.HttpMessageNotReadableException: JSON parse error: Unexpected character ('/' (code 47)): maybe a (non-standard) comment? (not recognized as one since Feature 'ALLOW_COMMENTS' not enabled for parser); nested exception is com.fasterxml.jackson.databind.JsonMappingException: Unexpected character ('/' (code 47)): maybe a (non-standard) comment? (not recognized as one since Feature 'ALLOW_COMMENTS' not enabled for parser)
+ at [Source: (PushbackInputStream); line: 22, column: 14] (through reference chain: hs.algorithmplatform.entity.DTO.dmc.request.DmcModleAdapter["pv"]->java.util.ArrayList[0])]
+2021-03-18 15:07:35.885 [http-nio-1234-exec-1] WARN  h.a.entity.model.controlmodle.MPCModle - modleid=1234,存在pv的置信区间不完整
+2021-03-18 15:07:35.889 [http-nio-1234-exec-1] WARN  h.a.entity.model.controlmodle.MPCModle - modleid=1234,存在ff的置信区间不完整
+2021-03-18 15:12:15.795 [http-nio-1234-exec-2] WARN  o.s.w.s.m.support.DefaultHandlerExceptionResolver - Resolved [org.springframework.web.context.request.async.AsyncRequestTimeoutException]
+2021-03-18 15:13:38.452 [http-nio-1234-exec-1] WARN  h.a.entity.model.controlmodle.MPCModle - modleid=1234,存在pv的置信区间不完整
+2021-03-18 15:13:38.453 [http-nio-1234-exec-1] WARN  h.a.entity.model.controlmodle.MPCModle - modleid=1234,存在ff的置信区间不完整
+2021-03-18 15:15:09.395 [http-nio-1234-exec-2] WARN  o.s.w.s.m.support.DefaultHandlerExceptionResolver - Resolved [org.springframework.web.context.request.async.AsyncRequestTimeoutException]
+2021-03-18 15:15:30.362 [http-nio-1234-exec-1] WARN  h.a.entity.model.controlmodle.MPCModle - modleid=1234,存在pv的置信区间不完整
+2021-03-18 15:15:30.363 [http-nio-1234-exec-1] WARN  h.a.entity.model.controlmodle.MPCModle - modleid=1234,存在ff的置信区间不完整
+2021-03-18 15:30:08.646 [http-nio-1234-exec-1] WARN  h.a.entity.model.controlmodle.MPCModle - modleid=1234,存在pv的置信区间不完整
+2021-03-18 15:30:08.649 [http-nio-1234-exec-1] WARN  h.a.entity.model.controlmodle.MPCModle - modleid=1234,存在ff的置信区间不完整
+2021-03-18 15:39:36.898 [http-nio-1234-exec-1] WARN  h.a.entity.model.controlmodle.MPCModle - modleid=1234,存在pv的置信区间不完整
+2021-03-18 15:39:36.900 [http-nio-1234-exec-1] WARN  h.a.entity.model.controlmodle.MPCModle - modleid=1234,存在ff的置信区间不完整
+2021-03-18 15:56:41.481 [http-nio-1234-exec-2] WARN  o.s.w.s.m.support.DefaultHandlerExceptionResolver - Resolved [org.springframework.web.HttpMediaTypeNotSupportedException: Content type '' not supported]
+2021-03-18 16:06:59.789 [http-nio-1234-exec-1] WARN  h.a.entity.model.controlmodle.MPCModle - modleid=1372370319733493762,存在pv的置信区间不完整
+2021-03-18 16:06:59.791 [http-nio-1234-exec-1] WARN  h.a.entity.model.controlmodle.MPCModle - modleid=1372370319733493762,存在ff的置信区间不完整
+2021-03-18 16:08:51.045 [http-nio-1234-exec-1] WARN  h.a.entity.model.controlmodle.MPCModle - modleid=1372370319733493762,存在pv的置信区间不完整
+2021-03-18 16:08:51.045 [http-nio-1234-exec-1] WARN  h.a.entity.model.controlmodle.MPCModle - modleid=1372370319733493762,存在ff的置信区间不完整
+2021-03-18 16:11:42.400 [http-nio-1234-exec-3] WARN  o.s.w.s.m.support.DefaultHandlerExceptionResolver - Resolved [org.springframework.web.context.request.async.AsyncRequestTimeoutException]
+2021-03-18 16:12:23.383 [nioEventLoopGroup-3-1] WARN  io.netty.channel.DefaultChannelPipeline - An exceptionCaught() event was fired, and it reached at the tail of the pipeline. It usually means the last handler in the pipeline did not handle the exception.
+java.io.IOException: 远程主机强迫关闭了一个现有的连接。
+	at sun.nio.ch.SocketDispatcher.read0(Native Method)
+	at sun.nio.ch.SocketDispatcher.read(SocketDispatcher.java:43)
+	at sun.nio.ch.IOUtil.readIntoNativeBuffer(IOUtil.java:223)
+	at sun.nio.ch.IOUtil.read(IOUtil.java:192)
+	at sun.nio.ch.SocketChannelImpl.read(SocketChannelImpl.java:380)
+	at io.netty.buffer.PooledUnsafeDirectByteBuf.setBytes(PooledUnsafeDirectByteBuf.java:288)
+	at io.netty.buffer.AbstractByteBuf.writeBytes(AbstractByteBuf.java:1106)
+	at io.netty.channel.socket.nio.NioSocketChannel.doReadBytes(NioSocketChannel.java:343)
+	at io.netty.channel.nio.AbstractNioByteChannel$NioByteUnsafe.read(AbstractNioByteChannel.java:123)
+	at io.netty.channel.nio.NioEventLoop.processSelectedKey(NioEventLoop.java:645)
+	at io.netty.channel.nio.NioEventLoop.processSelectedKeysOptimized(NioEventLoop.java:580)
+	at io.netty.channel.nio.NioEventLoop.processSelectedKeys(NioEventLoop.java:497)
+	at io.netty.channel.nio.NioEventLoop.run(NioEventLoop.java:459)
+	at io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:858)
+	at io.netty.util.concurrent.DefaultThreadFactory$DefaultRunnableDecorator.run(DefaultThreadFactory.java:138)
+	at java.lang.Thread.run(Thread.java:748)
+2021-03-18 16:13:21.705 [http-nio-1234-exec-4] WARN  o.s.w.s.m.support.DefaultHandlerExceptionResolver - Resolved [org.springframework.web.context.request.async.AsyncRequestTimeoutException]
+2021-03-18 16:14:33.011 [http-nio-1234-exec-5] WARN  h.a.entity.model.controlmodle.MPCModle - modleid=1372370319733493762,存在pv的置信区间不完整
+2021-03-18 16:14:33.011 [http-nio-1234-exec-5] WARN  h.a.entity.model.controlmodle.MPCModle - modleid=1372370319733493762,存在ff的置信区间不完整
+2021-03-18 16:15:34.707 [http-nio-1234-exec-6] WARN  o.s.w.s.m.support.DefaultHandlerExceptionResolver - Resolved [org.springframework.web.context.request.async.AsyncRequestTimeoutException]
+2021-03-18 16:20:49.207 [http-nio-1234-exec-1] WARN  h.a.entity.model.controlmodle.MPCModle - modleid=1372370319733493762,存在pv的置信区间不完整
+2021-03-18 16:20:49.207 [http-nio-1234-exec-1] WARN  h.a.entity.model.controlmodle.MPCModle - modleid=1372370319733493762,存在ff的置信区间不完整
+2021-03-18 16:23:18.742 [http-nio-1234-exec-1] WARN  h.a.entity.model.controlmodle.MPCModle - modleid=1372370319733493762,存在pv的置信区间不完整
+2021-03-18 16:23:18.745 [http-nio-1234-exec-1] WARN  h.a.entity.model.controlmodle.MPCModle - modleid=1372370319733493762,存在ff的置信区间不完整
+2021-03-18 16:27:55.529 [nioEventLoopGroup-3-1] WARN  io.netty.channel.DefaultChannelPipeline - An exceptionCaught() event was fired, and it reached at the tail of the pipeline. It usually means the last handler in the pipeline did not handle the exception.
+java.io.IOException: 远程主机强迫关闭了一个现有的连接。
+	at sun.nio.ch.SocketDispatcher.read0(Native Method)
+	at sun.nio.ch.SocketDispatcher.read(SocketDispatcher.java:43)
+	at sun.nio.ch.IOUtil.readIntoNativeBuffer(IOUtil.java:223)
+	at sun.nio.ch.IOUtil.read(IOUtil.java:192)
+	at sun.nio.ch.SocketChannelImpl.read(SocketChannelImpl.java:380)
+	at io.netty.buffer.PooledUnsafeDirectByteBuf.setBytes(PooledUnsafeDirectByteBuf.java:288)
+	at io.netty.buffer.AbstractByteBuf.writeBytes(AbstractByteBuf.java:1106)
+	at io.netty.channel.socket.nio.NioSocketChannel.doReadBytes(NioSocketChannel.java:343)
+	at io.netty.channel.nio.AbstractNioByteChannel$NioByteUnsafe.read(AbstractNioByteChannel.java:123)
+	at io.netty.channel.nio.NioEventLoop.processSelectedKey(NioEventLoop.java:645)
+	at io.netty.channel.nio.NioEventLoop.processSelectedKeysOptimized(NioEventLoop.java:580)
+	at io.netty.channel.nio.NioEventLoop.processSelectedKeys(NioEventLoop.java:497)
+	at io.netty.channel.nio.NioEventLoop.run(NioEventLoop.java:459)
+	at io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:858)
+	at io.netty.util.concurrent.DefaultThreadFactory$DefaultRunnableDecorator.run(DefaultThreadFactory.java:138)
+	at java.lang.Thread.run(Thread.java:748)
+2021-03-18 16:29:13.436 [http-nio-1234-exec-1] WARN  h.a.entity.model.controlmodle.MPCModle - modleid=1372370319733493762,存在pv的置信区间不完整
+2021-03-18 16:29:13.437 [http-nio-1234-exec-1] WARN  h.a.entity.model.controlmodle.MPCModle - modleid=1372370319733493762,存在ff的置信区间不完整
+2021-03-18 16:36:42.587 [http-nio-1234-exec-1] WARN  h.a.entity.model.controlmodle.MPCModle - modleid=1372370319733493762,存在pv的置信区间不完整
+2021-03-18 16:36:42.588 [http-nio-1234-exec-1] WARN  h.a.entity.model.controlmodle.MPCModle - modleid=1372370319733493762,存在ff的置信区间不完整
+2021-03-18 16:37:48.338 [http-nio-1234-exec-1] WARN  h.a.entity.model.controlmodle.MPCModle - modleid=1372370319733493762,存在pv的置信区间不完整
+2021-03-18 16:37:48.339 [http-nio-1234-exec-1] WARN  h.a.entity.model.controlmodle.MPCModle - modleid=1372370319733493762,存在ff的置信区间不完整
+2021-03-18 17:10:27.063 [http-nio-1234-exec-1] WARN  h.a.entity.model.controlmodle.MPCModle - modleid=1372370319733493762,存在pv的置信区间不完整
+2021-03-18 17:10:27.066 [http-nio-1234-exec-1] WARN  h.a.entity.model.controlmodle.MPCModle - modleid=1372370319733493762,存在ff的置信区间不完整
+2021-03-18 17:17:38.676 [http-nio-1234-exec-2] WARN  h.a.entity.model.controlmodle.MPCModle - modleid=1372370319733493762,存在pv的置信区间不完整
+2021-03-18 17:17:38.676 [http-nio-1234-exec-2] WARN  h.a.entity.model.controlmodle.MPCModle - modleid=1372370319733493762,存在ff的置信区间不完整
