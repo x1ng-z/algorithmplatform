@@ -2,25 +2,25 @@ package hs.algorithmplatform.entity.model;
 
 import com.alibaba.fastjson.JSONObject;
 import hs.algorithmplatform.entity.ModleSight;
-import hs.algorithmplatform.entity.Project;
+import lombok.Data;
 import org.springframework.web.context.request.async.DeferredResult;
 
 import java.time.Instant;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author zzx
  * @version 1.0
  * @date 2021/1/8 16:46
  */
+@Data
 public abstract class BaseModleImp implements Modle {
     public static final int RUNLEVEL_RUNNING=1;//正在运行中
     public static final int RUNLEVEL_RUNCOMPLET=2;//运行完成
     public static final int RUNLEVEL_INITE=3;//初始状态
     public static final int RUNLEVEL_PYTHONFAILD=8;//python运行报错
     public static final int RUNLEVEL_DISCONNECT=9;//断线
-//    public static final int RUNLEVEL_ENABLE=6;//dcs自动
-//    public static final int RUNLEVEL_DISENABLE=7;//dcs手动
     public static final int RUNLEVEL_JAVAMODLEBUILDCOMPLET=5;//java模型构建完成状态
     public static final int RUNLEVEL_PYTHONMODLEBUILDCOMPLET=4;//python模型构建状态
 
@@ -34,6 +34,7 @@ public abstract class BaseModleImp implements Modle {
     private Instant activetime;//用于判断模型是否已经离线
 
     private LinkedBlockingQueue<DeferredResult<String>> syneventLinkedBlockingQueue = new LinkedBlockingQueue();
+    private  AtomicBoolean cancelrun = new AtomicBoolean(false);
 
     /***db***/
     private long modleId;//模型id主键
@@ -55,120 +56,17 @@ public abstract class BaseModleImp implements Modle {
     public abstract void docomputeprocess() ;
 
     @Override
-    public abstract JSONObject inprocess(Project project) ;
+    public abstract JSONObject inprocess() ;
 
     @Override
-    public abstract JSONObject computresulteprocess(Project project,JSONObject computedata) ;
+    public abstract JSONObject computresulteprocess(JSONObject computedata) ;
 
     @Override
-    public abstract  void outprocess(Project project,JSONObject outdata) ;
+    public abstract  void outprocess(JSONObject outdata) ;
 
     @Override
     public abstract void init();
 
     public abstract void otherApcPlantRespon(int status);
 
-    public long getModleId() {
-        return modleId;
-    }
-
-    public void setModleId(long modleId) {
-        this.modleId = modleId;
-    }
-
-    public String getModleName() {
-        return modleName;
-    }
-
-    public void setModleName(String modleName) {
-        this.modleName = modleName;
-    }
-
-    public int getModleEnable() {
-        return modleEnable;
-    }
-
-    public void setModleEnable(int modleEnable) {
-        this.modleEnable = modleEnable;
-    }
-
-    public String getModletype() {
-        return modletype;
-    }
-
-    public void setModletype(String modletype) {
-        this.modletype = modletype;
-    }
-
-    public int getRefprojectid() {
-        return refprojectid;
-    }
-
-    public void setRefprojectid(int refprojectid) {
-        this.refprojectid = refprojectid;
-    }
-
-    public ModleSight getModleSight() {
-        return modleSight;
-    }
-
-    public void setModleSight(ModleSight modleSight) {
-        this.modleSight = modleSight;
-    }
-
-    public int getModlerunlevel() {
-        return modlerunlevel;
-    }
-
-    public void setModlerunlevel(int modlerunlevel) {
-        this.modlerunlevel = modlerunlevel;
-    }
-
-    public String getErrormsg() {
-        return errormsg;
-    }
-
-    public void setErrormsg(String errormsg) {
-        this.errormsg = errormsg;
-    }
-
-    public long getErrortimestamp() {
-        return errortimestamp;
-    }
-
-    public void setErrortimestamp(long errortimestamp) {
-        this.errortimestamp = errortimestamp;
-    }
-
-    public int getAutovalue() {
-        return autovalue;
-    }
-
-    public void setAutovalue(int autovalue) {
-        this.autovalue = autovalue;
-    }
-
-    public Instant getBeginruntime() {
-        return beginruntime;
-    }
-
-    public void setBeginruntime(Instant beginruntime) {
-        this.beginruntime = beginruntime;
-    }
-
-    public Instant getActivetime() {
-        return activetime;
-    }
-
-    public void setActivetime(Instant activetime) {
-        this.activetime = activetime;
-    }
-
-    public LinkedBlockingQueue<DeferredResult<String>> getSyneventLinkedBlockingQueue() {
-        return syneventLinkedBlockingQueue;
-    }
-
-    public void setSyneventLinkedBlockingQueue(LinkedBlockingQueue<DeferredResult<String>> syneventLinkedBlockingQueue) {
-        this.syneventLinkedBlockingQueue = syneventLinkedBlockingQueue;
-    }
 }

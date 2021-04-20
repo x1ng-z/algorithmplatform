@@ -2,7 +2,6 @@ package hs.algorithmplatform.entity.model.iomodle;
 
 import com.alibaba.fastjson.JSONObject;
 
-import hs.algorithmplatform.entity.Project;
 import hs.algorithmplatform.entity.model.BaseModleImp;
 import hs.algorithmplatform.entity.model.BaseModlePropertyImp;
 import hs.algorithmplatform.entity.model.ModleProperty;
@@ -60,7 +59,7 @@ public class INModle extends BaseModleImp {
 
 
     @Override
-    public JSONObject inprocess(Project project) {
+    public JSONObject inprocess() {
         StringBuilder tags = new StringBuilder();
         Map<String, String> postdata = new HashMap<>();
         for (ModleProperty modleProperty : propertyImpList) {
@@ -77,7 +76,7 @@ public class INModle extends BaseModleImp {
     }
 
     @Override
-    public JSONObject computresulteprocess(Project project, JSONObject computedata) {
+    public JSONObject computresulteprocess(JSONObject computedata) {
 
         return null;
     }
@@ -85,7 +84,7 @@ public class INModle extends BaseModleImp {
 
     /***刚好inprocess处理后的数据幅值给输出引脚*/
     @Override
-    public void outprocess(Project project, JSONObject outdata) {
+    public void outprocess( JSONObject outdata) {
         for (ModleProperty modleProperty : propertyImpList) {
             if (outdata.containsKey(((BaseModlePropertyImp) modleProperty).getResource().getString("inmappingtag"))) {
                 Double tagvalue = outdata.getDouble(((BaseModlePropertyImp) modleProperty).getResource().getString("inmappingtag"));

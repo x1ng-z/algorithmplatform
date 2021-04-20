@@ -3,7 +3,6 @@ package hs.algorithmplatform.entity.model.controlmodle;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
-import hs.algorithmplatform.entity.Project;
 import hs.algorithmplatform.entity.ResponTimeSerise;
 import hs.algorithmplatform.entity.model.BaseModleImp;
 import hs.algorithmplatform.entity.model.ModleProperty;
@@ -502,12 +501,12 @@ public class SimulatControlModle extends BaseModleImp {
     }
 
     @Override
-    public JSONObject inprocess(Project project) {
+    public JSONObject inprocess() {
         return null;
     }
 
     @Override
-    public JSONObject computresulteprocess(Project project, JSONObject computedata) {
+    public JSONObject computresulteprocess(JSONObject computedata) {
 
         if (computedata.getJSONObject("data").getString("msgtype").equals(MSGTYPE_BUILD)) {
             pythonbuildcomplet = true;
@@ -611,8 +610,10 @@ public class SimulatControlModle extends BaseModleImp {
         return null;
     }
 
+
+
     @Override
-    public void outprocess(Project project, JSONObject outdata) {
+    public void outprocess( JSONObject outdata) {
         setModlerunlevel(BaseModleImp.RUNLEVEL_RUNCOMPLET);
         setActivetime(Instant.now());
     }

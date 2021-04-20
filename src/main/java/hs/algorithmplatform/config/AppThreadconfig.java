@@ -26,7 +26,7 @@ public class AppThreadconfig {
          *-CallerRunsPolicy： 主线程自己执行此次任务
          *-DiscardPolicy： 直接丢弃此次任务，不抛出异常
          * */
-        ExecutorService pool = new ThreadPoolExecutor(10/* 线程池维护的线程数量，即使其中有闲置线程*/, 1000/*线程池能容纳的最大线程数量*/,
+        ExecutorService pool = new ThreadPoolExecutor(30/* 线程池维护的线程数量，即使其中有闲置线程*/, 2000/*线程池能容纳的最大线程数量*/,
                 60L/*当前线程数量超出CORE_POOL_SIZE时，过量线程在开始任务前的等待时间，超时将被关闭*/, TimeUnit.MILLISECONDS,/*KEEP_ALIVE_TIME的单位*/
                 new LinkedBlockingQueue<Runnable>(1), namedThreadFactory,  new ThreadPoolExecutor.CallerRunsPolicy()/*当执行被阻塞时要使用的处理程序,因为达到了线程界限和队列容量*/);
 

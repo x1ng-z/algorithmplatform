@@ -3,7 +3,6 @@ package hs.algorithmplatform.entity.model.filtermodle;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
-import hs.algorithmplatform.entity.Project;
 import hs.algorithmplatform.entity.model.BaseModleImp;
 import hs.algorithmplatform.entity.model.BaseModlePropertyImp;
 import hs.algorithmplatform.entity.model.Modle;
@@ -155,14 +154,14 @@ public class FilterModle extends BaseModleImp {
 
     //将上几个模块的输出引脚数据赋值给本模块的输入引脚
     @Override
-    public JSONObject inprocess(Project project) {
+    public JSONObject inprocess() {
 
         for (ModleProperty modleProperty : propertyImpList) {
             BaseModlePropertyImp filterproperty = (BaseModlePropertyImp) modleProperty;
             if (filterproperty.getPindir().equals(ModleProperty.PINDIRINPUT)) {
                 int modleId = filterproperty.getResource().getInteger("modleId");
                 int modlepinsId = filterproperty.getResource().getInteger("modlepinsId");
-                Modle modle = project.getIndexmodles().get(modleId);
+                Modle modle =null; //project.getIndexmodles().get(modleId);
                 if (modle != null) {
                     if (modle instanceof MPCModle) {
                         MPCModle mpcModle = (MPCModle) modle;
@@ -206,7 +205,7 @@ public class FilterModle extends BaseModleImp {
      * }
      */
     @Override
-    public JSONObject computresulteprocess(Project project, JSONObject computedata) {
+    public JSONObject computresulteprocess( JSONObject computedata) {
         for (ModleProperty modleProperty : propertyImpList) {
             BaseModlePropertyImp baseModlePropertyImp = (BaseModlePropertyImp) modleProperty;
             if (baseModlePropertyImp.getPindir().equals(ModleProperty.PINDIROUTPUT)) {
@@ -222,7 +221,7 @@ public class FilterModle extends BaseModleImp {
 
     //不用做如何事情了 computresulteprocess已经将数据赋值给输出引脚了
     @Override
-    public void outprocess(Project project, JSONObject outdata) {
+    public void outprocess( JSONObject outdata) {
         setModlerunlevel(BaseModleImp.RUNLEVEL_RUNCOMPLET);
         setActivetime(Instant.now());
     }

@@ -1,7 +1,6 @@
 package hs.algorithmplatform.entity.model;
 
 import com.alibaba.fastjson.JSONObject;
-import hs.algorithmplatform.entity.Project;
 
 /**
  * @author zzx
@@ -10,11 +9,11 @@ import hs.algorithmplatform.entity.Project;
  */
 public interface Process   {
 
-    JSONObject inprocess(Project project);
+    JSONObject inprocess();
     void docomputeprocess();
-    JSONObject computresulteprocess(Project project, JSONObject computedata);
+    JSONObject computresulteprocess(JSONObject computedata);
 
-    void outprocess(Project project, JSONObject outdata);
+    void outprocess(JSONObject outdata);
 
     void init();
 }

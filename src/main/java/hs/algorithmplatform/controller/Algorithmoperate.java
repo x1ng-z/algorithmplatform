@@ -84,8 +84,8 @@ public class Algorithmoperate {
      */
 
     @RequestMapping(path = "/dmc/buildrun", consumes = "application/json")
-    public DeferredResult<String> dmcbuildrun(@RequestBody DmcModleAdapter  dmcModleAdapter, BindingResult bindingresult) {
-        logger.info("/dmc/buildrun"+JSON.toJSONString(dmcModleAdapter));
+    public DeferredResult<String> dmcbuildrun(@RequestBody DmcModleAdapter dmcModleAdapter, BindingResult bindingresult) {
+        logger.info("/dmc/buildrun" + JSON.toJSONString(dmcModleAdapter));
         DeferredResult<String> result = new DeferredResult<String>(60 * 1000L);
 
         long modleid = dmcModleAdapter.getBasemodelparam().getModelid();
@@ -97,11 +97,11 @@ public class Algorithmoperate {
         } else {
             MPCModle mpcModle = (MPCModle) modle;
             if (mpcModle.getModlerunlevel() == BaseModleImp.RUNLEVEL_RUNCOMPLET) {
-                mpcModle.setModlerunlevel(BaseModleImp.RUNLEVEL_INITE);
+//                mpcModle.setModlerunlevel(BaseModleImp.RUNLEVEL_INITE);
                 dmcModleAdapter.updatemodlevalue((MPCModle) modle);
                 logger.info("some time1 call");
             } else if ((mpcModle.getModlerunlevel() == BaseModleImp.RUNLEVEL_RUNNING) && (null == pySessionManager.getSpecialSession(modleid, mpcModle.getMpcscript()))) {
-                mpcModle.setModlerunlevel(BaseModleImp.RUNLEVEL_INITE);
+//                mpcModle.setModlerunlevel(BaseModleImp.RUNLEVEL_INITE);
                 dmcModleAdapter.updatemodlevalue((MPCModle) modle);
                 logger.info("some time2 call");
             } else {
@@ -124,15 +124,20 @@ public class Algorithmoperate {
             logger.info("modleid=" + modleid + "调用完成");
         });
 
-        ((MPCModle) modle).otherApcPlanteRunonce(result);
+        Modle finalModle1 = modle;
+        executethreadpool.execute(new Runnable() {
+            @Override
+            public void run() {
+                ((MPCModle) finalModle1).otherApcPlanteRunonce(result);
+            }
+        });
         return result;
     }
 
 
-
     @RequestMapping(path = "/fpid/buildrun", consumes = "application/json")
     public DeferredResult<String> fpidrun(@Valid @RequestBody PidModleAdapter pidModleAdapter, BindingResult bindingresult) {
-        logger.info("/fpid/buildrun"+JSON.toJSONString(pidModleAdapter));
+        logger.info("/fpid/buildrun" + JSON.toJSONString(pidModleAdapter));
         DeferredResult<String> result = new DeferredResult<String>(60 * 1000L);
 
         long modleid = pidModleAdapter.getBasemodelparam().getModelid();
@@ -143,10 +148,10 @@ public class Algorithmoperate {
         } else {
             PIDModle pidmodle = (PIDModle) modle;
             if (pidmodle.getModlerunlevel() == BaseModleImp.RUNLEVEL_RUNCOMPLET) {
-                pidmodle.setModlerunlevel(BaseModleImp.RUNLEVEL_INITE);
+//                pidmodle.setModlerunlevel(BaseModleImp.RUNLEVEL_INITE);
                 pidModleAdapter.updatemodlevalue((PIDModle) modle);
             } else if ((pidmodle.getModlerunlevel() == BaseModleImp.RUNLEVEL_RUNNING) && (null == pySessionManager.getSpecialSession(modleid, pidmodle.getPidscript()))) {
-                pidmodle.setModlerunlevel(BaseModleImp.RUNLEVEL_INITE);
+//                pidmodle.setModlerunlevel(BaseModleImp.RUNLEVEL_INITE);
                 pidModleAdapter.updatemodlevalue((PIDModle) modle);
             } else {
                 JSONObject res = new JSONObject();
@@ -168,14 +173,21 @@ public class Algorithmoperate {
             logger.info("modleid=" + modleid + "调用完成");
         });
 
-        ((PIDModle) modle).otherApcPlanteRunonce(result);
+        Modle finalModle1 = modle;
+        executethreadpool.execute(new Runnable() {
+            @Override
+            public void run() {
+                ((PIDModle) finalModle1).otherApcPlanteRunonce(result);
+            }
+        });
+
         return result;
     }
 
 
     @RequestMapping(path = "/cpython/buildrun", consumes = "application/json")
     public DeferredResult<String> cpython(@Valid @RequestBody PythonAdapter pythonAdapter, BindingResult bindingresult) {
-        logger.info("/cpython/buildrun"+JSON.toJSONString(pythonAdapter));
+        logger.info("/cpython/buildrun" + JSON.toJSONString(pythonAdapter));
         DeferredResult<String> result = new DeferredResult<String>(60 * 1000L);
 
         long modleid = pythonAdapter.getBasemodelparam().getModelid();
@@ -186,10 +198,10 @@ public class Algorithmoperate {
         } else {
             CUSTOMIZEModle customizeModle = (CUSTOMIZEModle) modle;
             if (customizeModle.getModlerunlevel() == BaseModleImp.RUNLEVEL_RUNCOMPLET) {
-                customizeModle.setModlerunlevel(BaseModleImp.RUNLEVEL_INITE);
+//                customizeModle.setModlerunlevel(BaseModleImp.RUNLEVEL_INITE);
                 pythonAdapter.updatemodlevalue((CUSTOMIZEModle) modle);
             } else if ((customizeModle.getModlerunlevel() == BaseModleImp.RUNLEVEL_RUNNING) && (null == pySessionManager.getSpecialSession(modleid, customizeModle.noscripNametail()))) {
-                customizeModle.setModlerunlevel(BaseModleImp.RUNLEVEL_INITE);
+//                customizeModle.setModlerunlevel(BaseModleImp.RUNLEVEL_INITE);
                 pythonAdapter.updatemodlevalue((CUSTOMIZEModle) modle);
             } else {
                 JSONObject res = new JSONObject();
@@ -211,14 +223,21 @@ public class Algorithmoperate {
             logger.info("modleid=" + modleid + "调用完成");
         });
 
-        ((CUSTOMIZEModle) modle).otherApcPlanteRunonce(result);
+
+        Modle finalModle1 = modle;
+        executethreadpool.execute(new Runnable() {
+            @Override
+            public void run() {
+                ((CUSTOMIZEModle) finalModle1).otherApcPlanteRunonce(result);
+            }
+        });
         return result;
     }
 
 
     @RequestMapping(path = "/stop/{modleid}")
     public String modlestop(@PathVariable("modleid") long modleid) {
-        logger.info("/stop/modleid="+modleid);
+        logger.info("/stop/modleid=" + modleid);
         JSONObject res = new JSONObject();
         Modle modle = modleManager.getspecialModle(modleid);
         if (modle == null) {

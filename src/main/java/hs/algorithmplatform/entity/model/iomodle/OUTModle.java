@@ -2,7 +2,6 @@ package hs.algorithmplatform.entity.model.iomodle;
 
 import com.alibaba.fastjson.JSONObject;
 
-import hs.algorithmplatform.entity.Project;
 import hs.algorithmplatform.entity.model.BaseModleImp;
 import hs.algorithmplatform.entity.model.BaseModlePropertyImp;
 import hs.algorithmplatform.entity.model.Modle;
@@ -69,7 +68,7 @@ public class OUTModle extends BaseModleImp {
      * 从上一个模块引脚输出的数据赋值给模块的输入引脚
      * */
     @Override
-    public JSONObject inprocess(Project project) {
+    public JSONObject inprocess() {
 
         for (ModleProperty property : propertyImpList) {
             BaseModlePropertyImp outmodlepin = (BaseModlePropertyImp) property;
@@ -78,7 +77,7 @@ public class OUTModle extends BaseModleImp {
                 int modleId = outmodlepin.getResource().getInteger("modleId");
                 int modlepinsId = outmodlepin.getResource().getInteger("modlepinsId");
 
-                Modle modle = project.getIndexmodles().get(modleId);
+                Modle modle = null;//project.getIndexmodles().get(modleId);
                 if (modle != null) {
                     if (modle instanceof MPCModle) {
                         MPCModle mpcModle = (MPCModle) modle;
@@ -117,7 +116,7 @@ public class OUTModle extends BaseModleImp {
     }
 
     @Override
-    public JSONObject computresulteprocess(Project project,JSONObject computedata) {
+    public JSONObject computresulteprocess(JSONObject computedata) {
         return null;
     }
 
@@ -125,7 +124,7 @@ public class OUTModle extends BaseModleImp {
 
     /**将本模块的输入引脚输出给本模块的输出引脚，并且将输出数据提交给ocean*/
     @Override
-    public void outprocess(Project project, JSONObject outdata) {
+    public void outprocess( JSONObject outdata) {
 
         JSONObject writecontext=new JSONObject();
         for (ModleProperty property : propertyImpList) {

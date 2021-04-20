@@ -6,7 +6,6 @@ import com.alibaba.fastjson.JSONObject;
 import hs.algorithmplatform.entity.DTO.pid.respon.PidData;
 import hs.algorithmplatform.entity.DTO.pid.respon.PidRespon;
 import hs.algorithmplatform.entity.DTO.pid.respon.PidmvData;
-import hs.algorithmplatform.entity.Project;
 import hs.algorithmplatform.entity.model.BaseModleImp;
 import hs.algorithmplatform.entity.model.BaseModlePropertyImp;
 import hs.algorithmplatform.entity.model.Modle;
@@ -113,6 +112,7 @@ public class PIDModle extends BaseModleImp {
 
     @Override
     public void destory() {
+        getCancelrun().set(true);
         PySession pySession = pySessionManager.getSpecialSession(getModleId(), pidscript);
         if (pySession != null) {
             JSONObject json = new JSONObject();
@@ -144,8 +144,8 @@ public class PIDModle extends BaseModleImp {
             JSONObject pindata = new JSONObject();
             pindata.put(mvoutputpin.getModlePinName(), data);
             fakecomputedata.put("data", pindata);
-            computresulteprocess(null, fakecomputedata);
-            outprocess(null, null);
+            computresulteprocess(fakecomputedata);
+            outprocess(null);
             setAutovalue(0);
         }
 
@@ -225,7 +225,7 @@ public class PIDModle extends BaseModleImp {
             }
             try {
                 setModlerunlevel(BaseModleImp.RUNLEVEL_RUNNING);
-                logger.info("scriptinputcontext:"+scriptinputcontext.toJSONString());
+                logger.info("scriptinputcontext:" + scriptinputcontext.toJSONString());
                 pySession.getCtx().writeAndFlush(CommandImp.PARAM.build(scriptinputcontext.toJSONString().getBytes("utf-8"), getModleId()));
             } catch (UnsupportedEncodingException e) {
                 logger.error(e.getMessage(), e);
@@ -236,48 +236,13 @@ public class PIDModle extends BaseModleImp {
     }
 
     @Override
-    public JSONObject inprocess(Project project) {
+    public JSONObject inprocess() {
         for (ModleProperty modleProperty : propertyImpList) {
             BaseModlePropertyImp pidinproperty = (BaseModlePropertyImp) modleProperty;
             if (pidinproperty.getPindir().equals(ModleProperty.PINDIRINPUT)) {
                 if (pidinproperty.getResource().getString("resource").equals(ModleProperty.SOURCE_TYPE_CONSTANT)) {
                     pidinproperty.setValue(pidinproperty.getResource().getDouble("value"));
-                } else if (pidinproperty.getResource().getString("resource").equals(ModleProperty.SOURCE_TYPE_MODLE)) {
-                    int modleId = pidinproperty.getResource().getInteger("modleId");
-                    int modlepinsId = pidinproperty.getResource().getInteger("modlepinsId");
-
-                    Modle modle = project.getIndexmodles().get(modleId);
-                    if (modle != null) {
-                        if (modle instanceof MPCModle) {
-                            MPCModle mpcModle = (MPCModle) modle;
-                            BaseModlePropertyImp baseModlePropertyImp = mpcModle.getIndexproperties().get(modlepinsId);
-                            pidinproperty.setValue(baseModlePropertyImp.getValue());
-                        } else if (modle instanceof PIDModle) {
-                            PIDModle pidModle = (PIDModle) modle;
-                            BaseModlePropertyImp baseModlePropertyImp = pidModle.getIndexproperties().get(modlepinsId);
-                            pidinproperty.setValue(baseModlePropertyImp.getValue());
-                        } else if (modle instanceof CUSTOMIZEModle) {
-                            CUSTOMIZEModle customizeModle = (CUSTOMIZEModle) modle;
-                            BaseModlePropertyImp baseModlePropertyImp = customizeModle.getIndexproperties().get(modlepinsId);
-                            pidinproperty.setValue(baseModlePropertyImp.getValue());
-                        } else if (modle instanceof FilterModle) {
-                            FilterModle filterModle = (FilterModle) modle;
-                            BaseModlePropertyImp baseModlePropertyImp = filterModle.getIndexproperties().get(modlepinsId);
-                            pidinproperty.setValue(baseModlePropertyImp.getValue());
-                        } else if (modle instanceof INModle) {
-                            INModle inModle = (INModle) modle;
-                            BaseModlePropertyImp baseModlePropertyImp = inModle.getIndexproperties().get(modlepinsId);
-                            pidinproperty.setValue(baseModlePropertyImp.getValue());
-                        } else if (modle instanceof OUTModle) {
-                            OUTModle outModle = (OUTModle) modle;
-                            BaseModlePropertyImp baseModlePropertyImp = outModle.getIndexproperties().get(modlepinsId);
-                            pidinproperty.setValue(baseModlePropertyImp.getValue());
-                        }
-
-                    }
-
                 }
-
             }
         }
         return null;
@@ -285,7 +250,7 @@ public class PIDModle extends BaseModleImp {
 
     //解析计算输出结果，并且赋值给输出引脚
     @Override
-    public JSONObject computresulteprocess(Project project, JSONObject computedata) {
+    public JSONObject computresulteprocess(JSONObject computedata) {
         for (ModleProperty modleProperty : propertyImpList) {
             BaseModlePropertyImp pidinproperty = (BaseModlePropertyImp) modleProperty;
             if (pidinproperty.getPindir().equals(ModleProperty.PINDIROUTPUT)) {
@@ -310,28 +275,15 @@ public class PIDModle extends BaseModleImp {
     }
 
     @Override
-    public void outprocess(Project project, JSONObject outdata) {
+    public void outprocess(JSONObject outdata) {
         setModlerunlevel(BaseModleImp.RUNLEVEL_RUNCOMPLET);
         setActivetime(Instant.now());
 
         otherApcPlantRespon(200);
     }
 
-    /**
-     * 算法平台单独调用
-     */
 
-    public synchronized void otherApcPlanteRunonce(DeferredResult<String> deferredResult) {
-
-        getSyneventLinkedBlockingQueue().offer(deferredResult);
-
-//        if (ismpcmodleruncomplet()) {
-//            return;
-//        }
-        //父节点全部运行完成的条件下，如果mpc运行处于初始化状态下或者mpcModle不为空的时候，simultor也是运行状态处于初始状态下，就达到运算条件
-//        if (((getModlerunlevel() == BaseModleImp.RUNLEVEL_INITE) /**|| (mpcModle.getSimulatControlModle() != null ? (mpcModle.getSimulatControlModle().getModlerunlevel() == BaseModleImp.RUNLEVEL_INITE) : true)*/)) {
-        //根节点设置开始运行时间
-        inprocess(null);
+    private void handler() {
         do {
             docomputeprocess();
             try {
@@ -341,7 +293,7 @@ public class PIDModle extends BaseModleImp {
             } catch (InterruptedException e) {
                 logger.error(e.getMessage(), e);
             }
-        } while (getModlerunlevel() == BaseModleImp.RUNLEVEL_INITE);
+        } while (getModlerunlevel() == BaseModleImp.RUNLEVEL_INITE && (!getCancelrun().get()));
 
         /***
          * docomputeprocess返回的可能
@@ -354,8 +306,42 @@ public class PIDModle extends BaseModleImp {
             //计算或者构建失败，反馈结果
             otherApcPlantRespon(123456);
         }
+    }
+
+    /**
+     * 算法平台单独调用
+     */
+
+    public synchronized void otherApcPlanteRunonce(DeferredResult<String> deferredResult) {
+        setModlerunlevel(BaseModleImp.RUNLEVEL_INITE);
+        getSyneventLinkedBlockingQueue().offer(deferredResult);
+
+//        if (ismpcmodleruncomplet()) {
+//            return;
+//        }
+        //父节点全部运行完成的条件下，如果mpc运行处于初始化状态下或者mpcModle不为空的时候，simultor也是运行状态处于初始状态下，就达到运算条件
+//        if (((getModlerunlevel() == BaseModleImp.RUNLEVEL_INITE) /**|| (mpcModle.getSimulatControlModle() != null ? (mpcModle.getSimulatControlModle().getModlerunlevel() == BaseModleImp.RUNLEVEL_INITE) : true)*/)) {
+        //根节点设置开始运行时间
+        boolean fristtime = true;
+        inprocess();
+        //no cancle and no complete
+        while ((!getCancelrun().get()) && (getModlerunlevel() != BaseModleImp.RUNLEVEL_RUNCOMPLET)) {
+            if((BaseModleImp.RUNLEVEL_RUNNING == getModlerunlevel()) && (getMySession() == null)){
+                logger.info("modleid=" + getModleId() + " wait compupte result but it disconnect");
+            }
+            //first  or running and disconnect
+            if (fristtime || ((BaseModleImp.RUNLEVEL_RUNNING == getModlerunlevel()) && (getMySession() == null))) {
+                fristtime = false;
+                handler();
+            }
+
+        }
 
 
+    }
+
+    public PySession getMySession(){
+        return pySessionManager.getSpecialSession(getModleId(), pidscript);
     }
 
     /**

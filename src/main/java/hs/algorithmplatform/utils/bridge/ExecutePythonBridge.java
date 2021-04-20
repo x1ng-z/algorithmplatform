@@ -25,6 +25,7 @@ public class ExecutePythonBridge {
     }
 
     public boolean stop() {
+        logger.info("try to stop manul!");
         if (p != null) {
             p.destroy();
 //            result.interrupt();

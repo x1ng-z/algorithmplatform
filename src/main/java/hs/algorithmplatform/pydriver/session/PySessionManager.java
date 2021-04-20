@@ -5,6 +5,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -19,13 +22,31 @@ public class PySessionManager {
 
     private Map<ChannelHandlerContext, PySession> modulepool = new ConcurrentHashMap<>();
 
-    public synchronized void addSessionModule(long nodeid, String function, ChannelHandlerContext ctx) {
+    public synchronized void addSessionModule(long nodeid, String function, long timestamp, ChannelHandlerContext ctx) {
+        //remove old connect
+        List<ChannelHandlerContext> expriedconn = new ArrayList<>();
+        for (Map.Entry<ChannelHandlerContext, PySession> entry : modulepool.entrySet()) {
+            if (!entry.getKey().equals(ctx)) {
+                if (entry.getValue().getModleid() == nodeid && entry.getValue().getScriptName().equals(function)) {
+                    expriedconn.add(entry.getKey());
+                }
+            }
+        }
+
+        for (ChannelHandlerContext deletctx : expriedconn) {
+            PySession pySession = modulepool.remove(deletctx);
+            if (pySession.getCtx() != null) {
+                pySession.getCtx().close();
+            }
+        }
+        //put it
         if (!modulepool.containsKey(ctx)) {
-            PySession session = new PySession();
-            session.setCtx(ctx);
-            session.setScriptName(function);
-            session.setModleid(nodeid);
-            modulepool.put(ctx, session);
+            PySession newsession = new PySession();
+            newsession.setCtx(ctx);
+            newsession.setScriptName(function);
+            newsession.setModleid(nodeid);
+            newsession.setTimestamp(timestamp);
+            modulepool.put(ctx, newsession);
         }
 
     }
@@ -38,10 +59,10 @@ public class PySessionManager {
         return null;
     }
 
-    public synchronized PySession getSpecialSession(long modleid, String scriptname){
+    public synchronized PySession getSpecialSession(long modleid, String scriptname) {
 
-        for(PySession session:modulepool.values()){
-            if(session.getModleid()==modleid&&session.getScriptName().equals(scriptname)){
+        for (PySession session : modulepool.values()) {
+            if (session.getModleid() == modleid && session.getScriptName().equals(scriptname)) {
                 return session;
             }
         }

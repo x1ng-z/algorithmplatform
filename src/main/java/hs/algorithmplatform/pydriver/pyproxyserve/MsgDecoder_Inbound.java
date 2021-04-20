@@ -51,7 +51,6 @@ public class MsgDecoder_Inbound extends ChannelInboundHandlerAdapter {
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         super.channelActive(ctx);
         InetSocketAddress ipSocket = (InetSocketAddress) ctx.channel().remoteAddress();
-
         String clientIp = ipSocket.getAddress().getHostAddress();
         Integer port = ipSocket.getPort();
         logger.info("come in " + clientIp + ":" + port);
@@ -72,11 +71,6 @@ public class MsgDecoder_Inbound extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         try {
-//            InetSocketAddress ipSocket = (InetSocketAddress) ctx.channel().remoteAddress();
-//            String clientIp = ipSocket.getAddress().getHostAddress();
-//            Integer port = ipSocket.getPort();
-//            String ipAndPort = clientIp + ":" + port;
-////            logger.info(ipAndPort);
             ByteBuf wait_for_read = (ByteBuf) msg;
             if (wait_for_read.isReadable()) {
                 byte[] bytes = new byte[wait_for_read.readableBytes()];
@@ -90,8 +84,11 @@ public class MsgDecoder_Inbound extends ChannelInboundHandlerAdapter {
                     case 0x01: {
                         if (CommandImp.RESULT.valid(bytes)) {
                             JSONObject computeresult = CommandImp.RESULT.analye(bytes);
-                            logger.info(computeresult.toJSONString());
+//                            logger.info(computeresult.toJSONString());
                             Modle modle = modleManager.getspecialModle(modleid);
+                            if(modle==null){
+                                return;
+                            }
                             if (computeresult.getString("msg").equals("error")) {
                                 BaseModleImp baseModleImp = (BaseModleImp) modle;
                                 baseModleImp.setErrormsg(computeresult.getString("reason"));
@@ -100,18 +97,16 @@ public class MsgDecoder_Inbound extends ChannelInboundHandlerAdapter {
 
                                 if (modle instanceof MPCModle) {
                                     MPCModle mpcmodle = (MPCModle) modle;
-                                    if (mpcmodle.getSimulatControlModle() != null) {
-                                        mpcmodle.setActivetime(Instant.now());
-                                    }
                                     if (mpcmodle.getModlerunlevel() == BaseModleImp.RUNLEVEL_RUNNING) {
-                                        //在运行中控制权交由当前线程处理
+                                        //compute error python构建完成 在运行中控制权交由当前线程处理
                                         mpcmodle.otherApcPlantRespon(123456);
                                     } else {
-                                        //python构建完成，但是计算的时候报错了
+                                        //build error ，但是计算的时候报错了
                                         baseModleImp.setModlerunlevel(BaseModleImp.RUNLEVEL_PYTHONFAILD);
                                     }
 
                                 } else {
+                                    //other algorithm compute happen error just to set complet
                                     baseModleImp.otherApcPlantRespon(123456);
                                 }
 
@@ -121,40 +116,31 @@ public class MsgDecoder_Inbound extends ChannelInboundHandlerAdapter {
                                 if (modle instanceof MPCModle) {
                                     MPCModle mpcModle = (MPCModle) modle;
                                     if (computeresult.getString("scriptName").equals(mpcModle.getMpcscript())) {
-
-                                        mpcModle.computresulteprocess(null, computeresult);
+                                        mpcModle.computresulteprocess( computeresult);
                                         if (!computeresult.getJSONObject("data").getString("msgtype").equals(MPCModle.MSGTYPE_BUILD)) {
-                                            mpcModle.outprocess(null, null);
+                                            mpcModle.outprocess( null);
                                         }
-
-
-                                    } else if (computeresult.getString("scriptName").equals(mpcModle.getSimulatorscript())) {
-                                        mpcModle.getSimulatControlModle().computresulteprocess(null, computeresult);
-                                        if (!computeresult.getJSONObject("data").getString("msgtype").equals(MPCModle.MSGTYPE_BUILD)) {
-                                            mpcModle.getSimulatControlModle().outprocess(null, null);
-                                        }
-
                                     }
                                     break;
                                 } else if (modle instanceof PIDModle) {
                                     PIDModle pidModle = (PIDModle) modle;
                                     if (computeresult.getString("scriptName").equals(pidModle.getPidscript())) {
-                                        pidModle.computresulteprocess(null, computeresult);
-                                        pidModle.outprocess(null, null);
+                                        pidModle.computresulteprocess(computeresult);
+                                        pidModle.outprocess( null);
                                     }
                                     break;
                                 } else if (modle instanceof CUSTOMIZEModle) {
                                     CUSTOMIZEModle customizeModle = (CUSTOMIZEModle) modle;
                                     if (computeresult.getString("scriptName").equals(customizeModle.noscripNametail())) {
-                                        customizeModle.computresulteprocess(null, computeresult);
-                                        customizeModle.outprocess(null, null);
+                                        customizeModle.computresulteprocess(computeresult);
+                                        customizeModle.outprocess( null);
                                     }
                                     break;
                                 } else if (modle instanceof FilterModle) {
                                     FilterModle filterModle = (FilterModle) modle;
                                     if (computeresult.getString("scriptName").equals(filterModle.getFilterscript())) {
-                                        filterModle.computresulteprocess(null, computeresult);
-                                        filterModle.outprocess(null, null);
+                                        filterModle.computresulteprocess(computeresult);
+                                        filterModle.outprocess( null);
                                     }
                                     break;
                                 }
@@ -168,9 +154,12 @@ public class MsgDecoder_Inbound extends ChannelInboundHandlerAdapter {
                     case 0x03: {
                         if (CommandImp.HEART.valid(bytes)) {
                             JSONObject heartmsg = CommandImp.HEART.analye(bytes);
-                            logger.info(heartmsg.toJSONString());
-                            sessionManager.addSessionModule(modleid, heartmsg.getString("scriptName"), ctx);
+//                            logger.info(heartmsg.toJSONString());
+                            sessionManager.addSessionModule(modleid, heartmsg.getString("scriptName"), heartmsg.getLong("timestamp"),ctx);
                             Modle modle = modleManager.getspecialModle(modleid);
+                            if(modle==null){
+                                return;
+                            }
                             if (modle != null) {
                                 if (modle instanceof MPCModle) {
                                     MPCModle mpcModle = (MPCModle) modle;

@@ -5,22 +5,17 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
 import hs.algorithmplatform.entity.DTO.dmc.respon.*;
-import hs.algorithmplatform.entity.Project;
 import hs.algorithmplatform.entity.ResponTimeSerise;
 import hs.algorithmplatform.entity.model.BaseModleImp;
 import hs.algorithmplatform.entity.model.BaseModlePropertyImp;
-import hs.algorithmplatform.entity.model.Modle;
 import hs.algorithmplatform.entity.model.ModleProperty;
-import hs.algorithmplatform.entity.model.customizemodle.CUSTOMIZEModle;
-import hs.algorithmplatform.entity.model.filtermodle.FilterModle;
-import hs.algorithmplatform.entity.model.iomodle.INModle;
-import hs.algorithmplatform.entity.model.iomodle.OUTModle;
 import hs.algorithmplatform.entity.model.modlerproerty.MPCModleProperty;
 import hs.algorithmplatform.pydriver.command.CommandImp;
 import hs.algorithmplatform.pydriver.session.PySession;
 import hs.algorithmplatform.pydriver.session.PySessionManager;
 import hs.algorithmplatform.utils.bridge.ExecutePythonBridge;
 import hs.algorithmplatform.utils.help.Tool;
+import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.context.request.async.DeferredResult;
@@ -30,6 +25,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
 
 /**
@@ -37,6 +33,7 @@ import java.util.regex.Pattern;
  * @version 1.0
  * @date 2021/1/8 16:50
  */
+@Data
 public class MPCModle extends BaseModleImp {
     private Logger logger = LoggerFactory.getLogger(MPCModle.class);
     private static Pattern pvpattern = Pattern.compile("(^pv\\d+$)");
@@ -49,8 +46,9 @@ public class MPCModle extends BaseModleImp {
     /**
      * memery
      */
-    private volatile boolean javabuildcomplet = false;//java控制模型是构建完成？
-    private volatile boolean pythonbuildcomplet = false;//python的控制模型是否构建完成
+    private volatile AtomicBoolean javabuildcomplet = new AtomicBoolean(false);//java控制模型是构建完成？
+    private volatile AtomicBoolean pythonbuildcomplet = new AtomicBoolean(false);//python的控制模型是否构建完成
+
     private String datasource;
     private Map<Integer, MPCModleProperty> indexproperties;//key=modleid
     private PySessionManager pySessionManager;
@@ -275,15 +273,8 @@ public class MPCModle extends BaseModleImp {
          * */
         if (getModlerunlevel() == BaseModleImp.RUNLEVEL_RUNCOMPLET) {
             //判断下mpc完成状态下，simultor模型是否完成模型构建
-            if (javabuildcomplet) {
+            if (javabuildcomplet.get()) {
                 //mpc的javabuild完成，那么就要要求simulator的也javabuild完成，否则就是simulator的python数据肯定还没有计算完成
-//                if ((simulatControlModle != null) && (simulatControlModle.isJavabuildcomplet()) && simulatControlModle.getModlerunlevel() == BaseModleImp.RUNLEVEL_RUNCOMPLET) {
-//                    //simulator的javabuild成功，且运行完成
-//                    return true;
-//                } else {
-//                    //simulator的javabuild出错 模型整体被短路
-//                    return false;
-//                }
                 return true;
             } else {
                 //mpc javabuild有问题，模型短路，那么就要直接判断模型已经运行成功了
@@ -322,8 +313,8 @@ public class MPCModle extends BaseModleImp {
      */
     @Override
     public void reconnect() {
-        setJavabuildcomplet(false);
-        pythonbuildcomplet = false;
+        javabuildcomplet.set(false);
+        pythonbuildcomplet.set(false);
         PySession mpcpySession = pySessionManager.getSpecialSession(getModleId(), mpcscript);
         if (mpcpySession != null) {
             JSONObject json = new JSONObject();
@@ -335,18 +326,6 @@ public class MPCModle extends BaseModleImp {
             }
             pySessionManager.removeSessionModule(mpcpySession.getCtx()).getCtx().close();
         }
-
-//        PySession simulatepySession = pySessionManager.getSpecialSession(getModleId(), simulatorscript);
-//        if (simulatepySession != null) {
-//            JSONObject json = new JSONObject();
-//            json.put("msg", "stop");
-//            try {
-//                simulatepySession.getCtx().writeAndFlush(CommandImp.STOP.build(json.toJSONString().getBytes("utf-8"), getModleId()));
-//            } catch (UnsupportedEncodingException e) {
-//                logger.error(e.getMessage(), e);
-//            }
-//            pySessionManager.removeSessionModule(simulatepySession.getCtx()).getCtx().close();
-//        }
 
         try {
             TimeUnit.MILLISECONDS.sleep(10);
@@ -355,15 +334,12 @@ public class MPCModle extends BaseModleImp {
         }
 
         mpcexecutepythonbridge.stop();
-//        simulateexecutePythonBridge.stop();
+
 
         mpcexecutepythonbridge.execute();
-//        simulateexecutePythonBridge.execute();
-
         mpcpySession = pySessionManager.getSpecialSession(getModleId(), mpcscript);
-//        simulatepySession = pySessionManager.getSpecialSession(getModleId(), simulatorscript);
-        int trycheckcount = 5;
-        while ((trycheckcount-- > 0) && (mpcpySession == null /**|| simulatepySession == null*/)) {
+        int trycheckcount = 3;
+        while ((trycheckcount-- > 0) && (mpcpySession == null)) {
             //等待连接上来
             try {
                 TimeUnit.MILLISECONDS.sleep(500);
@@ -371,14 +347,12 @@ public class MPCModle extends BaseModleImp {
                 logger.error(e.getMessage(), e);
             }
             mpcpySession = pySessionManager.getSpecialSession(getModleId(), mpcscript);
-//            simulatepySession = pySessionManager.getSpecialSession(getModleId(), simulatorscript);
         }
-
-
     }
 
     @Override
     public void destory() {
+        getCancelrun().set(true);
         PySession mpcpySession = pySessionManager.getSpecialSession(getModleId(), mpcscript);
         if (mpcpySession != null) {
             JSONObject json = new JSONObject();
@@ -391,6 +365,7 @@ public class MPCModle extends BaseModleImp {
             pySessionManager.removeSessionModule(mpcpySession.getCtx()).getCtx().close();
         }
         mpcexecutepythonbridge.stop();
+
 
 //
 //        PySession simulatepySession = pySessionManager.getSpecialSession(getModleId(), simulatorscript);
@@ -470,12 +445,6 @@ public class MPCModle extends BaseModleImp {
 
         if (ishavebreakOrRestorepin) {
             logger.info("some pin break limit");
-            setJavabuildcomplet(false);
-            pythonbuildcomplet = false;
-//            if (simulatControlModle != null) {
-//                simulatControlModle.setJavabuildcomplet(false);
-//                simulatControlModle.setPythonbuildcomplet(false);
-//            }
             reconnect();
         }
 
@@ -527,6 +496,8 @@ public class MPCModle extends BaseModleImp {
 
     //模型短路，直接将输入的mv赋值给输出的mv
     private void modleshortcircuit() {
+        javabuildcomplet.set(false);
+        pythonbuildcomplet.set(false);
         List<MPCModleProperty> modlePropertyList = new ArrayList<>();
         for (ModleProperty modleProperty : propertyImpList) {
             MPCModleProperty mpcModleProperty = (MPCModleProperty) modleProperty;
@@ -545,10 +516,7 @@ public class MPCModle extends BaseModleImp {
                 outputdmv.setValue(0d);
             }
         }
-        outprocess(null, null);
-//        if (simulatControlModle != null) {
-//            simulatControlModle.outprocess(null, null);
-//        }
+        outprocess(null);
     }
 
 
@@ -561,30 +529,20 @@ public class MPCModle extends BaseModleImp {
      * 4进入进行计算状态
      * */
     public void docomputeprocess() {
-        logger.info("in docomputeprocess");
         //首先判断下是否dcs打自动
         BaseModlePropertyImp autopin = Tool.selectmodleProperyByPinname(ModleProperty.TYPE_PIN_MODLE_AUTO, propertyImpList, ModleProperty.PINDIRINPUT);
         //判断是否dcs已经打了自动
         if (autopin != null) {
             if (autopin.getValue() == 0) {
+                logger.info(getModleId() + " is manul");
                 //把输入的mv直接丢给输出mv，短路模型
-//                JSONObject fakecomputedata = new JSONObject();
                 modleshortcircuit();//模型短路
-
-//                computresulteprocess(null, fakecomputedata);
-//                outprocess(null, null);
                 setAutovalue(0);//记录下当前的dcs自动位号值
                 return;
             } else if ((autopin.getValue() != 0) && (getAutovalue() == 0)) {
                 //之前为0，且当前dcs位号也不为0,开始重启模型
                 setAutovalue(1);
                 //清除java模型构建模型和python模型构建标志位
-                setJavabuildcomplet(false);
-                pythonbuildcomplet = false;
-//                if (simulatControlModle != null) {
-//                    simulatControlModle.setJavabuildcomplet(false);
-//                    simulatControlModle.setPythonbuildcomplet(false);
-//                }
                 reconnect();
             }
 
@@ -607,42 +565,34 @@ public class MPCModle extends BaseModleImp {
                 mpcpySession = pySessionManager.getSpecialSession(getModleId(), mpcscript);
             }
             if (null == mpcpySession) {
-//                System.out.println("$$reconnect*********");
                 reconnect();
-//                System.out.println("###reconnect*********");
-
             }
         }
 
 //        long start=System.currentTimeMillis();
-        if (mpcpySession != null /**&& simulatepySession != null*/) {
-            if(!pythonbuildcomplet){
+        if (null != mpcpySession) {
+            if (!pythonbuildcomplet.get()) {
                 if (modleBuild(true)) {
                     JSONObject mpcmodlebuild = dataForpythonBuildmpc();
                     try {
-                        if (!pythonbuildcomplet) {
-                            mpcpySession.getCtx().writeAndFlush(CommandImp.PARAM.build(mpcmodlebuild.toJSONString().getBytes("utf-8"), getModleId()));
-                        }
+                        logger.info("BUILD:"+mpcmodlebuild.toJSONString());
+                        mpcpySession.getCtx().writeAndFlush(CommandImp.PARAM.build(mpcmodlebuild.toJSONString().getBytes("utf-8"), getModleId()));
                     } catch (UnsupportedEncodingException e) {
                         logger.error(e.getMessage(), e);
                     }
                     //pythonmodle 构架未完成，且在线
                 } else {
-                    //短路模型
+                    //java mode build error, so 短路模型
                     setErrormsg("modle build error:\n" + "p:" + numOfRunnablePVPins_pp + " m:" + numOfRunnableMVpins_mm + " ff:" + numOfRunnableFFpins_vv);
                     modleshortcircuit();
                     return;
                 }
             }
 
-
-//            }
-            JSONObject mpcmodlebuild ;//= dataForpythonBuildmpc();
-//            JSONObject simulatemodlebuild = simulatControlModle.dataforpythonbuildsimulate();
             /**
              * 自旋检测python是否构建完成，
              * 可能已经返回的python执行结果了，如果python运行失败或者掉线了，失败的话就不需要执行了，*/
-            while (javabuildcomplet && (getModlerunlevel() != BaseModleImp.RUNLEVEL_PYTHONFAILD) && !pythonbuildcomplet && pySessionManager.getSpecialSession(getModleId(), mpcscript) != null) {
+            while (javabuildcomplet.get() && (getModlerunlevel() != BaseModleImp.RUNLEVEL_PYTHONFAILD) && !pythonbuildcomplet.get() && pySessionManager.getSpecialSession(getModleId(), mpcscript) != null) {
                 int i = 3;
                 while (i-- > 0) {
                     try {
@@ -650,18 +600,18 @@ public class MPCModle extends BaseModleImp {
                     } catch (InterruptedException e) {
                         logger.error(e.getMessage(), e);
                     }
-                    if (pythonbuildcomplet) {
+                    if (pythonbuildcomplet.get()) {
                         break;
                     }
                 }
-                if (!pythonbuildcomplet) {
-                    mpcmodlebuild = dataForpythonBuildmpc();
+                if (!pythonbuildcomplet.get()) {
+                    JSONObject mpcmodlebuild = dataForpythonBuildmpc();
+
                     try {
                         mpcpySession.getCtx().writeAndFlush(CommandImp.PARAM.build(mpcmodlebuild.toJSONString().getBytes("utf-8"), getModleId()));
                     } catch (UnsupportedEncodingException e) {
                         logger.error(e.getMessage(), e);
                     }
-
                 }
             }
 
@@ -670,13 +620,12 @@ public class MPCModle extends BaseModleImp {
 //            System.out.println("build cost time");
             try {
                 //python构建完成才可以发送计算数据
-                if (pythonbuildcomplet) {
+                if (pythonbuildcomplet.get()) {
                     mpcpySession = pySessionManager.getSpecialSession(getModleId(), mpcscript);
-//                simulatepySession = pySessionManager.getSpecialSession(getModleId(), simulatorscript);
-                    if (mpcpySession != null /**&& simulatepySession != null*/) {
-                        if (javabuildcomplet /**&& (simulatControlModle != null) && (simulatControlModle.isJavabuildcomplet())*/) {
+                    if (mpcpySession != null) {
+                        if (javabuildcomplet.get()) {
                             setModlerunlevel(BaseModleImp.RUNLEVEL_RUNNING);
-                            logger.info("compute"+getRealData().toJSONString());
+                            logger.info("modleid=" + getModleId() + ",compute" + getRealData().toJSONString());
                             mpcpySession.getCtx().writeAndFlush(CommandImp.PARAM.build(getRealData().toJSONString().getBytes("utf-8"), getModleId()));
                         }
                     }
@@ -685,53 +634,22 @@ public class MPCModle extends BaseModleImp {
                 logger.error(e.getMessage(), e);
             }
 //            }
+        } else {
+            pythonbuildcomplet.set(false);
+            javabuildcomplet.set(false);
         }
 
     }
 
 
     @Override
-    public JSONObject inprocess(Project project) {
+    public JSONObject inprocess() {
 
         for (ModleProperty modleProperty : propertyImpList) {
             MPCModleProperty mpcinproperty = (MPCModleProperty) modleProperty;
             if (mpcinproperty.getPindir().equals(ModleProperty.PINDIRINPUT)) {
                 if (mpcinproperty.getResource().getString("resource").equals(ModleProperty.SOURCE_TYPE_CONSTANT)) {
                     mpcinproperty.setValue(mpcinproperty.getResource().getDouble("value"));
-                } else if (mpcinproperty.getResource().getString("resource").equals(ModleProperty.SOURCE_TYPE_MODLE)) {
-                    int modleId = mpcinproperty.getResource().getInteger("modleId");
-                    int modlepinsId = mpcinproperty.getResource().getInteger("modlepinsId");
-
-                    Modle modle = project.getIndexmodles().get(modleId);
-                    if (modle != null) {
-                        if (modle instanceof MPCModle) {
-                            MPCModle mpcModle = (MPCModle) modle;
-                            BaseModlePropertyImp baseModlePropertyImp = mpcModle.getIndexproperties().get(modlepinsId);
-                            mpcinproperty.setValue(baseModlePropertyImp.getValue());
-                        } else if (modle instanceof PIDModle) {
-                            PIDModle pidModle = (PIDModle) modle;
-                            BaseModlePropertyImp baseModlePropertyImp = pidModle.getIndexproperties().get(modlepinsId);
-                            mpcinproperty.setValue(baseModlePropertyImp.getValue());
-                        } else if (modle instanceof CUSTOMIZEModle) {
-                            CUSTOMIZEModle customizeModle = (CUSTOMIZEModle) modle;
-                            BaseModlePropertyImp baseModlePropertyImp = customizeModle.getIndexproperties().get(modlepinsId);
-                            mpcinproperty.setValue(baseModlePropertyImp.getValue());
-                        } else if (modle instanceof FilterModle) {
-                            FilterModle filterModle = (FilterModle) modle;
-                            BaseModlePropertyImp baseModlePropertyImp = filterModle.getIndexproperties().get(modlepinsId);
-                            mpcinproperty.setValue(baseModlePropertyImp.getValue());
-                        } else if (modle instanceof INModle) {
-                            INModle inModle = (INModle) modle;
-                            BaseModlePropertyImp baseModlePropertyImp = inModle.getIndexproperties().get(modlepinsId);
-                            mpcinproperty.setValue(baseModlePropertyImp.getValue());
-                        } else if (modle instanceof OUTModle) {
-                            OUTModle outModle = (OUTModle) modle;
-                            BaseModlePropertyImp baseModlePropertyImp = outModle.getIndexproperties().get(modlepinsId);
-                            mpcinproperty.setValue(baseModlePropertyImp.getValue());
-                        }
-
-                    }
-
                 }
 
             }
@@ -740,13 +658,18 @@ public class MPCModle extends BaseModleImp {
     }
 
     @Override
-    public JSONObject computresulteprocess(Project project, JSONObject computedata) {
+    public JSONObject computresulteprocess(JSONObject computedata) {
 
         if (computedata.getJSONObject("data").getString("msgtype").equals(MSGTYPE_BUILD)) {
-            pythonbuildcomplet = true;
+            if (computedata.containsKey("timestamp")) {
+                if (computedata.getLongValue("timestamp") > getMySession().getTimestamp()) {
+                    pythonbuildcomplet.set(true);
+                }
+            } else {
+                pythonbuildcomplet.set(true);
+            }
         } else if (computedata.getJSONObject("data").getString("msgtype").equals(MSGTYPE_COMPUTE)) {
             try {
-
                 JSONObject modlestatus = computedata.getJSONObject("data");//JSONObject.parseObject(data);
                 JSONArray predictpvJson = modlestatus.getJSONArray("predict");//
                 JSONArray eJson = modlestatus.getJSONArray("e");//
@@ -817,7 +740,7 @@ public class MPCModle extends BaseModleImp {
     }
 
     @Override
-    public void outprocess(Project project, JSONObject outdata) {
+    public void outprocess(JSONObject outdata) {
         setModlerunlevel(BaseModleImp.RUNLEVEL_RUNCOMPLET);
         //activetime
         setActivetime(Instant.now());
@@ -834,26 +757,11 @@ public class MPCModle extends BaseModleImp {
         }
         String filterpath = System.getProperty("user.dir") + "\\" + pyproxyexecute;
         mpcexecutepythonbridge = new ExecutePythonBridge(filterpath, "127.0.0.1", port, mpcscript, getModleId() + "");
-
-//        simulateexecutePythonBridge = new ExecutePythonBridge(filterpath, "127.0.0.1", port, simulatorscript, getModleId() + "");
     }
 
 
-    /**
-     * 算法平台单独调用
-     */
 
-    public synchronized void otherApcPlanteRunonce(DeferredResult<String> deferredResult) {
-
-        getSyneventLinkedBlockingQueue().offer(deferredResult);
-
-//        if (ismpcmodleruncomplet()) {
-//            return;
-//        }
-        //父节点全部运行完成的条件下，如果mpc运行处于初始化状态下或者mpcModle不为空的时候，simultor也是运行状态处于初始状态下，就达到运算条件
-//        if (((getModlerunlevel() == BaseModleImp.RUNLEVEL_INITE) /**|| (mpcModle.getSimulatControlModle() != null ? (mpcModle.getSimulatControlModle().getModlerunlevel() == BaseModleImp.RUNLEVEL_INITE) : true)*/)) {
-        //根节点设置开始运行时间
-        inprocess(null);
+    private void handler(){
         do {
             docomputeprocess();
             try {
@@ -863,7 +771,7 @@ public class MPCModle extends BaseModleImp {
             } catch (InterruptedException e) {
                 logger.error(e.getMessage(), e);
             }
-        } while (getModlerunlevel() == BaseModleImp.RUNLEVEL_INITE);
+        } while (getModlerunlevel() == BaseModleImp.RUNLEVEL_INITE && (!getCancelrun().get()));
 
         /***
          * docomputeprocess返回的可能w1
@@ -878,6 +786,35 @@ public class MPCModle extends BaseModleImp {
             otherApcPlantRespon(123456);
             return;
         }
+    }
+
+    /**
+     * 算法平台单独调用
+     */
+
+    public synchronized void otherApcPlanteRunonce(DeferredResult<String> deferredResult) {
+        setModlerunlevel(BaseModleImp.RUNLEVEL_INITE);
+        getSyneventLinkedBlockingQueue().offer(deferredResult);
+        //父节点全部运行完成的条件下，如果mpc运行处于初始化状态下或者mpcModle不为空的时候，simultor也是运行状态处于初始状态下，就达到运算条件
+//        if (((getModlerunlevel() == BaseModleImp.RUNLEVEL_INITE) /**|| (mpcModle.getSimulatControlModle() != null ? (mpcModle.getSimulatControlModle().getModlerunlevel() == BaseModleImp.RUNLEVEL_INITE) : true)*/)) {
+        //根节点设置开始运行时间
+        boolean fristtime = true;
+        inprocess();
+        //no cancle and no complete
+        while ((!getCancelrun().get()) && (getModlerunlevel() != BaseModleImp.RUNLEVEL_RUNCOMPLET)) {
+
+            //first  or running and disconnect
+            if (fristtime || ((BaseModleImp.RUNLEVEL_RUNNING == getModlerunlevel()) && (getMySession() == null))) {
+
+                if((BaseModleImp.RUNLEVEL_RUNNING == getModlerunlevel()) && (getMySession() == null)){
+                    logger.info("modleid=" + getModleId() + " wait compupte result but it disconnect");
+                }
+                fristtime=false;
+                handler();
+            }
+
+        }
+
 
     }
 
@@ -885,11 +822,10 @@ public class MPCModle extends BaseModleImp {
     /**
      * wait python result and check
      * try to use ReentrantLock
-     * */
-    public void waitresultcheck(){
+     */
+    public void waitresultcheck() {
 
     }
-
 
 
     /**
@@ -921,7 +857,7 @@ public class MPCModle extends BaseModleImp {
                 if (outputpin.getPindir().equals(MPCModleProperty.PINDIROUTPUT)) {
                     MvData mvData = new MvData();
                     mvData.setPinname(outputpin.getModlePinName());
-                    mvData.setValue(outputpin.getValue()==null?0:outputpin.getValue());
+                    mvData.setValue(outputpin.getValue() == null ? 0 : outputpin.getValue());
                     mvDataList.add(mvData);
                 }
             }
@@ -1412,7 +1348,7 @@ public class MPCModle extends BaseModleImp {
 
             simulatControlModle.setControlModle(this);
             simulatControlModle.build();
-            javabuildcomplet = true;
+            javabuildcomplet.set(true);
             return true;
 
         } catch (Exception e) {
@@ -1576,7 +1512,7 @@ public class MPCModle extends BaseModleImp {
                     ff[indexEnableFF] = categoryFFmodletag.get(indexff).getValue();
                     MPCModleProperty ffuppin = categoryFFmodletag.get(indexff).getUpLmt();
                     MPCModleProperty ffdownpin = categoryFFmodletag.get(indexff).getDownLmt();
-                    if((ffuppin!=null)&&(ffdownpin!=null)){
+                    if ((ffuppin != null) && (ffdownpin != null)) {
                         /**
                          *ff信号是否在置信区间内
                          * */
@@ -1755,6 +1691,10 @@ public class MPCModle extends BaseModleImp {
     }
 
 
+    public PySession getMySession() {
+        return pySessionManager.getSpecialSession(getModleId(), mpcscript);
+    }
+
     /****db****/
     private Integer predicttime_P;//预测时域
     private Integer controltime_M;//单一控制输入未来控制M步增量(控制域)
@@ -1765,474 +1705,4 @@ public class MPCModle extends BaseModleImp {
 
     private List<ModleProperty> propertyImpList;
     private List<ResponTimeSerise> responTimeSeriseList;
-
-
-    public Integer getPredicttime_P() {
-        return predicttime_P;
-    }
-
-    public void setPredicttime_P(Integer predicttime_P) {
-        this.predicttime_P = predicttime_P;
-    }
-
-    public Integer getControltime_M() {
-        return controltime_M;
-    }
-
-    public void setControltime_M(Integer controltime_M) {
-        this.controltime_M = controltime_M;
-    }
-
-    public Integer getTimeserise_N() {
-        return timeserise_N;
-    }
-
-    public void setTimeserise_N(Integer timeserise_N) {
-        this.timeserise_N = timeserise_N;
-    }
-
-    public Integer getControlAPCOutCycle() {
-        return controlAPCOutCycle;
-    }
-
-    public void setControlAPCOutCycle(Integer controlAPCOutCycle) {
-        this.controlAPCOutCycle = controlAPCOutCycle;
-    }
-
-    public Integer getRunstyle() {
-        return runstyle;
-    }
-
-    public void setRunstyle(Integer runstyle) {
-        this.runstyle = runstyle;
-    }
-
-    public List<ModleProperty> getPropertyImpList() {
-        return propertyImpList;
-    }
-
-    public void setPropertyImpList(List<ModleProperty> propertyImpList) {
-        this.propertyImpList = propertyImpList;
-    }
-
-    public List<ResponTimeSerise> getResponTimeSeriseList() {
-        return responTimeSeriseList;
-    }
-
-    public void setResponTimeSeriseList(List<ResponTimeSerise> responTimeSeriseList) {
-        this.responTimeSeriseList = responTimeSeriseList;
-    }
-
-
-    public String getDatasource() {
-        return datasource;
-    }
-
-    public void setDatasource(String datasource) {
-        this.datasource = datasource;
-    }
-
-    public Map<Integer, MPCModleProperty> getIndexproperties() {
-        return indexproperties;
-    }
-
-    public void setIndexproperties(Map<Integer, MPCModleProperty> indexproperties) {
-        this.indexproperties = indexproperties;
-    }
-
-    public PySessionManager getPySessionManager() {
-        return pySessionManager;
-    }
-
-    public void setPySessionManager(PySessionManager pySessionManager) {
-        this.pySessionManager = pySessionManager;
-    }
-
-    public ExecutePythonBridge getMpcexecutepythonbridge() {
-        return mpcexecutepythonbridge;
-    }
-
-    public void setMpcexecutepythonbridge(ExecutePythonBridge mpcexecutepythonbridge) {
-        this.mpcexecutepythonbridge = mpcexecutepythonbridge;
-    }
-
-    public String getPyproxyexecute() {
-        return pyproxyexecute;
-    }
-
-    public void setPyproxyexecute(String pyproxyexecute) {
-        this.pyproxyexecute = pyproxyexecute;
-    }
-
-    public String getPort() {
-        return port;
-    }
-
-    public void setPort(String port) {
-        this.port = port;
-    }
-
-    public String getMpcscript() {
-        return mpcscript;
-    }
-
-    public void setMpcscript(String mpcscript) {
-        this.mpcscript = mpcscript;
-    }
-
-    public List<MPCModleProperty> getCategoryPVmodletag() {
-        return categoryPVmodletag;
-    }
-
-    public void setCategoryPVmodletag(List<MPCModleProperty> categoryPVmodletag) {
-        this.categoryPVmodletag = categoryPVmodletag;
-    }
-
-    public List<MPCModleProperty> getCategorySPmodletag() {
-        return categorySPmodletag;
-    }
-
-    public void setCategorySPmodletag(List<MPCModleProperty> categorySPmodletag) {
-        this.categorySPmodletag = categorySPmodletag;
-    }
-
-    public List<MPCModleProperty> getCategoryMVmodletag() {
-        return categoryMVmodletag;
-    }
-
-    public void setCategoryMVmodletag(List<MPCModleProperty> categoryMVmodletag) {
-        this.categoryMVmodletag = categoryMVmodletag;
-    }
-
-    public List<MPCModleProperty> getCategoryFFmodletag() {
-        return categoryFFmodletag;
-    }
-
-    public void setCategoryFFmodletag(List<MPCModleProperty> categoryFFmodletag) {
-        this.categoryFFmodletag = categoryFFmodletag;
-    }
-
-    public int getTotalPv() {
-        return totalPv;
-    }
-
-    public void setTotalPv(int totalPv) {
-        this.totalPv = totalPv;
-    }
-
-    public int getTotalFf() {
-        return totalFf;
-    }
-
-    public void setTotalFf(int totalFf) {
-        this.totalFf = totalFf;
-    }
-
-    public int getTotalMv() {
-        return totalMv;
-    }
-
-    public void setTotalMv(int totalMv) {
-        this.totalMv = totalMv;
-    }
-
-    public double[][] getBackPVPrediction() {
-        return backPVPrediction;
-    }
-
-    public void setBackPVPrediction(double[][] backPVPrediction) {
-        this.backPVPrediction = backPVPrediction;
-    }
-
-    public double[][] getBackPVFunelUp() {
-        return backPVFunelUp;
-    }
-
-    public void setBackPVFunelUp(double[][] backPVFunelUp) {
-        this.backPVFunelUp = backPVFunelUp;
-    }
-
-    public double[][] getBackPVFunelDown() {
-        return backPVFunelDown;
-    }
-
-    public void setBackPVFunelDown(double[][] backPVFunelDown) {
-        this.backPVFunelDown = backPVFunelDown;
-    }
-
-    public double[][] getBackDmvWrite() {
-        return backDmvWrite;
-    }
-
-    public void setBackDmvWrite(double[][] backDmvWrite) {
-        this.backDmvWrite = backDmvWrite;
-    }
-
-    public double[] getBackrawDmv() {
-        return backrawDmv;
-    }
-
-    public void setBackrawDmv(double[] backrawDmv) {
-        this.backrawDmv = backrawDmv;
-    }
-
-    public double[] getBackrawDff() {
-        return backrawDff;
-    }
-
-    public void setBackrawDff(double[] backrawDff) {
-        this.backrawDff = backrawDff;
-    }
-
-    public double[] getBackPVPredictionError() {
-        return backPVPredictionError;
-    }
-
-    public void setBackPVPredictionError(double[] backPVPredictionError) {
-        this.backPVPredictionError = backPVPredictionError;
-    }
-
-    public double[][] getBackDff() {
-        return backDff;
-    }
-
-    public void setBackDff(double[][] backDff) {
-        this.backDff = backDff;
-    }
-
-    public Integer getBaseoutpoints_p() {
-        return baseoutpoints_p;
-    }
-
-    public void setBaseoutpoints_p(Integer baseoutpoints_p) {
-        this.baseoutpoints_p = baseoutpoints_p;
-    }
-
-    public Integer getNumOfRunnablePVPins_pp() {
-        return numOfRunnablePVPins_pp;
-    }
-
-    public void setNumOfRunnablePVPins_pp(Integer numOfRunnablePVPins_pp) {
-        this.numOfRunnablePVPins_pp = numOfRunnablePVPins_pp;
-    }
-
-    public Integer getBasefeedforwardpoints_v() {
-        return basefeedforwardpoints_v;
-    }
-
-    public void setBasefeedforwardpoints_v(Integer basefeedforwardpoints_v) {
-        this.basefeedforwardpoints_v = basefeedforwardpoints_v;
-    }
-
-    public Integer getNumOfRunnableFFpins_vv() {
-        return numOfRunnableFFpins_vv;
-    }
-
-    public void setNumOfRunnableFFpins_vv(Integer numOfRunnableFFpins_vv) {
-        this.numOfRunnableFFpins_vv = numOfRunnableFFpins_vv;
-    }
-
-    public Integer getBaseinputpoints_m() {
-        return baseinputpoints_m;
-    }
-
-    public void setBaseinputpoints_m(Integer baseinputpoints_m) {
-        this.baseinputpoints_m = baseinputpoints_m;
-    }
-
-    public Integer getNumOfRunnableMVpins_mm() {
-        return numOfRunnableMVpins_mm;
-    }
-
-    public void setNumOfRunnableMVpins_mm(Integer numOfRunnableMVpins_mm) {
-        this.numOfRunnableMVpins_mm = numOfRunnableMVpins_mm;
-    }
-
-    public double[][][] getA_RunnabletimeseriseMatrix() {
-        return A_RunnabletimeseriseMatrix;
-    }
-
-    public void setA_RunnabletimeseriseMatrix(double[][][] a_RunnabletimeseriseMatrix) {
-        A_RunnabletimeseriseMatrix = a_RunnabletimeseriseMatrix;
-    }
-
-    public double[][][] getB_RunnabletimeseriseMatrix() {
-        return B_RunnabletimeseriseMatrix;
-    }
-
-    public void setB_RunnabletimeseriseMatrix(double[][][] b_RunnabletimeseriseMatrix) {
-        B_RunnabletimeseriseMatrix = b_RunnabletimeseriseMatrix;
-    }
-
-    public Double[] getQ() {
-        return Q;
-    }
-
-    public void setQ(Double[] q) {
-        Q = q;
-    }
-
-    public Double[] getR() {
-        return R;
-    }
-
-    public void setR(Double[] r) {
-        R = r;
-    }
-
-    public Double[] getAlpheTrajectoryCoefficients() {
-        return alpheTrajectoryCoefficients;
-    }
-
-    public void setAlpheTrajectoryCoefficients(Double[] alpheTrajectoryCoefficients) {
-        this.alpheTrajectoryCoefficients = alpheTrajectoryCoefficients;
-    }
-
-    public String[] getAlpheTrajectoryCoefmethod() {
-        return alpheTrajectoryCoefmethod;
-    }
-
-    public void setAlpheTrajectoryCoefmethod(String[] alpheTrajectoryCoefmethod) {
-        this.alpheTrajectoryCoefmethod = alpheTrajectoryCoefmethod;
-    }
-
-    public Double[] getDeadZones() {
-        return deadZones;
-    }
-
-    public void setDeadZones(Double[] deadZones) {
-        this.deadZones = deadZones;
-    }
-
-    public Double[] getFunelinitvalues() {
-        return funelinitvalues;
-    }
-
-    public void setFunelinitvalues(Double[] funelinitvalues) {
-        this.funelinitvalues = funelinitvalues;
-    }
-
-    public double[][] getFunneltype() {
-        return funneltype;
-    }
-
-    public void setFunneltype(double[][] funneltype) {
-        this.funneltype = funneltype;
-    }
-
-    public SimulatControlModle getSimulatControlModle() {
-        return simulatControlModle;
-    }
-
-    public void setSimulatControlModle(SimulatControlModle simulatControlModle) {
-        this.simulatControlModle = simulatControlModle;
-    }
-
-    public String getSimulatorscript() {
-        return simulatorscript;
-    }
-
-    public void setSimulatorscript(String simulatorscript) {
-        this.simulatorscript = simulatorscript;
-    }
-
-    public int[][] getMaskBaseMapPvUseMvMatrix() {
-        return maskBaseMapPvUseMvMatrix;
-    }
-
-    public void setMaskBaseMapPvUseMvMatrix(int[][] maskBaseMapPvUseMvMatrix) {
-        this.maskBaseMapPvUseMvMatrix = maskBaseMapPvUseMvMatrix;
-    }
-
-    public float[][] getMaskBaseMapPvEffectMvMatrix() {
-        return maskBaseMapPvEffectMvMatrix;
-    }
-
-    public void setMaskBaseMapPvEffectMvMatrix(float[][] maskBaseMapPvEffectMvMatrix) {
-        this.maskBaseMapPvEffectMvMatrix = maskBaseMapPvEffectMvMatrix;
-    }
-
-    public int[][] getMaskMatrixRunnablePVUseMV() {
-        return maskMatrixRunnablePVUseMV;
-    }
-
-    public void setMaskMatrixRunnablePVUseMV(int[][] maskMatrixRunnablePVUseMV) {
-        this.maskMatrixRunnablePVUseMV = maskMatrixRunnablePVUseMV;
-    }
-
-    public float[][] getMaskMatrixRunnablePvEffectMv() {
-        return maskMatrixRunnablePvEffectMv;
-    }
-
-    public void setMaskMatrixRunnablePvEffectMv(float[][] maskMatrixRunnablePvEffectMv) {
-        this.maskMatrixRunnablePvEffectMv = maskMatrixRunnablePvEffectMv;
-    }
-
-    public int[][] getMaskBaseMapPvUseFfMatrix() {
-        return maskBaseMapPvUseFfMatrix;
-    }
-
-    public void setMaskBaseMapPvUseFfMatrix(int[][] maskBaseMapPvUseFfMatrix) {
-        this.maskBaseMapPvUseFfMatrix = maskBaseMapPvUseFfMatrix;
-    }
-
-    public int[][] getMaskMatrixRunnablePVUseFF() {
-        return maskMatrixRunnablePVUseFF;
-    }
-
-    public void setMaskMatrixRunnablePVUseFF(int[][] maskMatrixRunnablePVUseFF) {
-        this.maskMatrixRunnablePVUseFF = maskMatrixRunnablePVUseFF;
-    }
-
-    public int[] getMaskisRunnableFFMatrix() {
-        return maskisRunnableFFMatrix;
-    }
-
-    public void setMaskisRunnableFFMatrix(int[] maskisRunnableFFMatrix) {
-        this.maskisRunnableFFMatrix = maskisRunnableFFMatrix;
-    }
-
-    public int[] getMaskisRunnablePVMatrix() {
-        return maskisRunnablePVMatrix;
-    }
-
-    public void setMaskisRunnablePVMatrix(int[] maskisRunnablePVMatrix) {
-        this.maskisRunnablePVMatrix = maskisRunnablePVMatrix;
-    }
-
-    public int[] getMaskisRunnableMVMatrix() {
-        return maskisRunnableMVMatrix;
-    }
-
-    public void setMaskisRunnableMVMatrix(int[] maskisRunnableMVMatrix) {
-        this.maskisRunnableMVMatrix = maskisRunnableMVMatrix;
-    }
-
-    public Map<String, MPCModleProperty> getStringmodlePinsMap() {
-        return stringmodlePinsMap;
-    }
-
-    public void setStringmodlePinsMap(Map<String, MPCModleProperty> stringmodlePinsMap) {
-        this.stringmodlePinsMap = stringmodlePinsMap;
-    }
-
-    public boolean isJavabuildcomplet() {
-        return javabuildcomplet;
-    }
-
-    public void setJavabuildcomplet(boolean javabuildcomplet) {
-        this.javabuildcomplet = javabuildcomplet;
-    }
-
-    public String getRunmsg() {
-        return runmsg;
-    }
-
-    public void setRunmsg(String runmsg) {
-        this.runmsg = runmsg;
-    }
-
-    /*********/
-
-
 }

@@ -6,7 +6,6 @@ import com.alibaba.fastjson.JSONObject;
 import hs.algorithmplatform.entity.DTO.python.respon.DmvData;
 import hs.algorithmplatform.entity.DTO.python.respon.PythonData;
 import hs.algorithmplatform.entity.DTO.python.respon.PythonRespon;
-import hs.algorithmplatform.entity.Project;
 import hs.algorithmplatform.entity.model.BaseModleImp;
 import hs.algorithmplatform.entity.model.BaseModlePropertyImp;
 import hs.algorithmplatform.entity.model.Modle;
@@ -107,6 +106,7 @@ public class CUSTOMIZEModle extends BaseModleImp {
 
     @Override
     public void destory() {
+        getCancelrun().set(true);
         PySession pySession = pySessionManager.getSpecialSession(getModleId(), noscripNametail());
         if (pySession != null) {
             JSONObject json = new JSONObject();
@@ -164,45 +164,12 @@ public class CUSTOMIZEModle extends BaseModleImp {
 
 
     @Override
-    public JSONObject inprocess(Project project) {
+    public JSONObject inprocess() {
         for (ModleProperty modleProperty : propertyImpList) {
             BaseModlePropertyImp customizeinproperty = (BaseModlePropertyImp) modleProperty;
             if (customizeinproperty.getPindir().equals(ModleProperty.PINDIRINPUT)) {
                 if (customizeinproperty.getResource().getString("resource").equals(ModleProperty.SOURCE_TYPE_CONSTANT)) {
                     customizeinproperty.setValue(customizeinproperty.getResource().getDouble("value"));
-                } else if (customizeinproperty.getResource().getString("resource").equals(ModleProperty.SOURCE_TYPE_MODLE)) {
-                    int modleId = customizeinproperty.getResource().getInteger("modleId");
-                    int modlepinsId = customizeinproperty.getResource().getInteger("modlepinsId");
-                    Modle modle = project.getIndexmodles().get(modleId);
-                    if (modle != null) {
-                        if (modle instanceof MPCModle) {
-                            MPCModle mpcModle = (MPCModle) modle;
-                            BaseModlePropertyImp baseModlePropertyImp = mpcModle.getIndexproperties().get(modlepinsId);
-                            customizeinproperty.setValue(baseModlePropertyImp.getValue());
-                        } else if (modle instanceof PIDModle) {
-                            PIDModle pidModle = (PIDModle) modle;
-                            BaseModlePropertyImp baseModlePropertyImp = pidModle.getIndexproperties().get(modlepinsId);
-                            customizeinproperty.setValue(baseModlePropertyImp.getValue());
-                        } else if (modle instanceof CUSTOMIZEModle) {
-                            CUSTOMIZEModle customizeModle = (CUSTOMIZEModle) modle;
-                            BaseModlePropertyImp baseModlePropertyImp = customizeModle.getIndexproperties().get(modlepinsId);
-                            customizeinproperty.setValue(baseModlePropertyImp.getValue());
-                        } else if (modle instanceof FilterModle) {
-                            FilterModle filterModle = (FilterModle) modle;
-                            BaseModlePropertyImp baseModlePropertyImp = filterModle.getIndexproperties().get(modlepinsId);
-                            customizeinproperty.setValue(baseModlePropertyImp.getValue());
-                        } else if (modle instanceof INModle) {
-                            INModle inModle = (INModle) modle;
-                            BaseModlePropertyImp baseModlePropertyImp = inModle.getIndexproperties().get(modlepinsId);
-                            customizeinproperty.setValue(baseModlePropertyImp.getValue());
-                        } else if (modle instanceof OUTModle) {
-                            OUTModle outModle = (OUTModle) modle;
-                            BaseModlePropertyImp baseModlePropertyImp = outModle.getIndexproperties().get(modlepinsId);
-                            customizeinproperty.setValue(baseModlePropertyImp.getValue());
-                        }
-
-                    }
-
                 }
 
             }
@@ -218,7 +185,7 @@ public class CUSTOMIZEModle extends BaseModleImp {
      *                    }
      */
     @Override
-    public JSONObject computresulteprocess(Project project, JSONObject computedata) {
+    public JSONObject computresulteprocess(JSONObject computedata) {
 
         for (ModleProperty modleProperty : propertyImpList) {
             BaseModlePropertyImp baseModlePropertyImp = (BaseModlePropertyImp) modleProperty;
@@ -235,26 +202,14 @@ public class CUSTOMIZEModle extends BaseModleImp {
     }
 
     @Override
-    public void outprocess(Project project, JSONObject outdata) {
+    public void outprocess(JSONObject outdata) {
         setModlerunlevel(BaseModleImp.RUNLEVEL_RUNCOMPLET);
         setActivetime(Instant.now());
 
         otherApcPlantRespon(200);
     }
 
-
-    /**
-     * 算法平台单独调用
-     */
-
-    public synchronized void otherApcPlanteRunonce(DeferredResult<String> deferredResult) {
-
-        getSyneventLinkedBlockingQueue().offer(deferredResult);
-
-        //父节点全部运行完成的条件下，如果mpc运行处于初始化状态下或者mpcModle不为空的时候，simultor也是运行状态处于初始状态下，就达到运算条件
-//        if (((getModlerunlevel() == BaseModleImp.RUNLEVEL_INITE) /**|| (mpcModle.getSimulatControlModle() != null ? (mpcModle.getSimulatControlModle().getModlerunlevel() == BaseModleImp.RUNLEVEL_INITE) : true)*/)) {
-        //根节点设置开始运行时间
-        inprocess(null);
+    private void handler() {
         do {
             docomputeprocess();
             try {
@@ -264,7 +219,7 @@ public class CUSTOMIZEModle extends BaseModleImp {
             } catch (InterruptedException e) {
                 logger.error(e.getMessage(), e);
             }
-        } while (getModlerunlevel() == BaseModleImp.RUNLEVEL_INITE);
+        } while (getModlerunlevel() == BaseModleImp.RUNLEVEL_INITE && (!getCancelrun().get()));
 
         /***
          * docomputeprocess返回的可能
@@ -278,8 +233,40 @@ public class CUSTOMIZEModle extends BaseModleImp {
             otherApcPlantRespon(123456);
         }
 
-
     }
+
+    /**
+     * 算法平台单独调用
+     */
+
+    public synchronized void otherApcPlanteRunonce(DeferredResult<String> deferredResult) {
+        setModlerunlevel(BaseModleImp.RUNLEVEL_INITE);
+        getSyneventLinkedBlockingQueue().offer(deferredResult);
+
+        //父节点全部运行完成的条件下，如果mpc运行处于初始化状态下或者mpcModle不为空的时候，simultor也是运行状态处于初始状态下，就达到运算条件
+//        if (((getModlerunlevel() == BaseModleImp.RUNLEVEL_INITE) /**|| (mpcModle.getSimulatControlModle() != null ? (mpcModle.getSimulatControlModle().getModlerunlevel() == BaseModleImp.RUNLEVEL_INITE) : true)*/)) {
+        //根节点设置开始运行时间
+        boolean fristtime = true;
+        inprocess();
+        //no cancle and no complete
+        while ((!getCancelrun().get()) && (getModlerunlevel() != BaseModleImp.RUNLEVEL_RUNCOMPLET)) {
+
+            //first  or running and disconnect
+            if (fristtime || ((BaseModleImp.RUNLEVEL_RUNNING == getModlerunlevel()) && (getMySession() == null))) {
+                if ((BaseModleImp.RUNLEVEL_RUNNING == getModlerunlevel()) && (getMySession() == null)) {
+                    logger.info("modleid=" + getModleId() + " wait compupte result but it disconnect");
+                }
+                fristtime = false;
+                handler();
+            }
+
+        }
+    }
+
+    public PySession getMySession() {
+        return pySessionManager.getSpecialSession(getModleId(), noscripNametail());
+    }
+
 
     /**
      * {"data":{mv:1.2,partkp:0.1,partki:0.2,partkd}}，里面的partkp,partki和partkd为方便调试模型使用，放置在前端PID调试模块进行展示，展示方式以列表方式显示即可
@@ -305,7 +292,7 @@ public class CUSTOMIZEModle extends BaseModleImp {
                 if (baseModlePropertyImp.getPindir().equals(ModleProperty.PINDIROUTPUT)) {
                     DmvData dmvData = new DmvData();
                     dmvData.setPinname(baseModlePropertyImp.getModlePinName());
-                    dmvData.setValue(baseModlePropertyImp.getValue()==null?0:baseModlePropertyImp.getValue());
+                    dmvData.setValue(baseModlePropertyImp.getValue() == null ? 0 : baseModlePropertyImp.getValue());
                     dmvDatalist.add(dmvData);
                 }
 
