@@ -35,8 +35,8 @@ import java.util.concurrent.ExecutorService;
  */
 @RestController
 @RequestMapping("/algorithm")
-public class Algorithmoperate {
-    private Logger logger = LoggerFactory.getLogger(Algorithmoperate.class);
+public class AlgorithmOperateController {
+    private Logger logger = LoggerFactory.getLogger(AlgorithmOperateController.class);
 
     private IOServer ioServer;
     private PySessionManager pySessionManager;
@@ -51,18 +51,18 @@ public class Algorithmoperate {
     private ExecutorService executethreadpool;
     private ModleManager modleManager;
 
-    public Algorithmoperate(IOServer ioServer,
-                            PySessionManager pySessionManager,
-                            ModleManager modleManager,
-                            @Value("${pyproxyexecute}") String pyproxyexecute,
-                            @Value("${mpcpinnumber}") int mpcpinnumber,
-                            @Value("${filterscript}") String filterscript,
-                            @Value("${pidscript}") String pidscript,
-                            @Value("${simulatorscript}") String simulatorscript,
-                            @Value("${mpcscrip}") String mpcscrip,
-                            @Value("${oceandir}") String oceandir,
-                            @Value("${pydriverport}") String pydriverport,
-                            @Qualifier("executethreadpool")
+    public AlgorithmOperateController(IOServer ioServer,
+                                      PySessionManager pySessionManager,
+                                      ModleManager modleManager,
+                                      @Value("${pyproxyexecute}") String pyproxyexecute,
+                                      @Value("${mpcpinnumber}") int mpcpinnumber,
+                                      @Value("${filterscript}") String filterscript,
+                                      @Value("${pidscript}") String pidscript,
+                                      @Value("${simulatorscript}") String simulatorscript,
+                                      @Value("${mpcscrip}") String mpcscrip,
+                                      @Value("${oceandir}") String oceandir,
+                                      @Value("${pydriverport}") String pydriverport,
+                                      @Qualifier("executethreadpool")
                                     ExecutorService executethreadpool) {
         this.ioServer = ioServer;
         this.pySessionManager = pySessionManager;
@@ -118,6 +118,8 @@ public class Algorithmoperate {
         result.onTimeout(() -> {
             logger.info("modleid=" + modleid + " 调用超时");
             ((BaseModleImp) finalModle).getSyneventLinkedBlockingQueue().poll();
+            //超时结束模型调用
+           modleManager.stopAndRemoveModle(modleid);
         });
 
         result.onCompletion(() -> {
@@ -167,6 +169,8 @@ public class Algorithmoperate {
         result.onTimeout(() -> {
             logger.info("modleid=" + modleid + " 调用超时");
             ((BaseModleImp) finalModle).getSyneventLinkedBlockingQueue().poll();
+            //超时结束模型调用
+            modleManager.stopAndRemoveModle(modleid);
         });
 
         result.onCompletion(() -> {
@@ -198,10 +202,8 @@ public class Algorithmoperate {
         } else {
             CUSTOMIZEModle customizeModle = (CUSTOMIZEModle) modle;
             if (customizeModle.getModlerunlevel() == BaseModleImp.RUNLEVEL_RUNCOMPLET) {
-//                customizeModle.setModlerunlevel(BaseModleImp.RUNLEVEL_INITE);
                 pythonAdapter.updatemodlevalue((CUSTOMIZEModle) modle);
             } else if ((customizeModle.getModlerunlevel() == BaseModleImp.RUNLEVEL_RUNNING) && (null == pySessionManager.getSpecialSession(modleid, customizeModle.noscripNametail()))) {
-//                customizeModle.setModlerunlevel(BaseModleImp.RUNLEVEL_INITE);
                 pythonAdapter.updatemodlevalue((CUSTOMIZEModle) modle);
             } else {
                 JSONObject res = new JSONObject();
@@ -217,6 +219,8 @@ public class Algorithmoperate {
         result.onTimeout(() -> {
             logger.info("modleid=" + modleid + " 调用超时");
             ((BaseModleImp) finalModle).getSyneventLinkedBlockingQueue().poll();
+            //超时结束模型调用
+            modleManager.stopAndRemoveModle(modleid);
         });
 
         result.onCompletion(() -> {

@@ -148,6 +148,9 @@ public class ModleManager {
         }
     }
 
+    /**
+     * 从pool中移除模型，并调用destory
+     * */
     public void stopAndRemoveModle(long modleid){
         Modle modle=modlePool.remove(modleid);
         ((BaseModleImp)modle).destory();
@@ -158,6 +161,11 @@ public class ModleManager {
 
     public Modle getspecialModle(long modleid) {
         return modlePool.get(modleid);
+    }
+
+
+    public Map<Long, Modle> getAllModel(){
+        return modlePool;
     }
 
 

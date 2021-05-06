@@ -25,7 +25,7 @@ public class PythonAdapter {
 
     private PythonBaseParam basemodelparam;
     private String pythoncontext;
-    private Map<String,String> inputparam;
+    private Map<String,String> inputparam;//输出参数数据，key=参数名称,value=值
     private List<PythonOutParam> outputparam;
 
 
@@ -83,7 +83,8 @@ public class PythonAdapter {
 
 
     /**
-     * 更新mpc引脚数据
+     * 通过参数名称，更新模型引脚数据
+     * 更新引脚数据
      */
 
     public void updatemodlevalue(CUSTOMIZEModle customizeModle) {

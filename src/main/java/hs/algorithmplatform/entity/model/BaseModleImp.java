@@ -50,6 +50,10 @@ public abstract class BaseModleImp implements Modle {
     public abstract void connect();
     @Override
     public abstract void reconnect();
+
+    /**
+     * 模型销毁
+     * */
     @Override
     public abstract void destory() ;
     @Override
@@ -67,6 +71,9 @@ public abstract class BaseModleImp implements Modle {
     @Override
     public abstract void init();
 
+    /**
+     * 响应反馈
+     * */
     public abstract void otherApcPlantRespon(int status);
 
 }
