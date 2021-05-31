@@ -2,6 +2,7 @@ package hs.algorithmplatform.entity.model.iomodle;
 
 import com.alibaba.fastjson.JSONObject;
 
+import hs.algorithmplatform.entity.bean.BridgeInfo;
 import hs.algorithmplatform.entity.model.BaseModleImp;
 import hs.algorithmplatform.entity.model.BaseModlePropertyImp;
 import hs.algorithmplatform.entity.model.Modle;
@@ -147,7 +148,7 @@ public class OUTModle extends BaseModleImp {
     }
 
     @Override
-    public void init() {
+    public void init(Map<Long, BridgeInfo> bridgeCache) {
         indexproperties = new HashMap<>();
         for (ModleProperty modleProperty : propertyImpList) {
             BaseModlePropertyImp baseModlePropertyImp = (BaseModlePropertyImp) modleProperty;

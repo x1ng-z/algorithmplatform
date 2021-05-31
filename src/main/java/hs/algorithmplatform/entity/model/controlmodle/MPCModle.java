@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSONObject;
 
 import hs.algorithmplatform.entity.DTO.dmc.respon.*;
 import hs.algorithmplatform.entity.ResponTimeSerise;
+import hs.algorithmplatform.entity.bean.BridgeInfo;
 import hs.algorithmplatform.entity.model.BaseModleImp;
 import hs.algorithmplatform.entity.model.BaseModlePropertyImp;
 import hs.algorithmplatform.entity.model.ModleProperty;
@@ -749,14 +750,14 @@ public class MPCModle extends BaseModleImp {
     }
 
     @Override
-    public void init() {
+    public void init(Map<Long, BridgeInfo> bridgeCache) {
         indexproperties = new HashMap<>();
         for (ModleProperty modleProperty : propertyImpList) {
             MPCModleProperty mpcModleProperty = (MPCModleProperty) modleProperty;
             indexproperties.put(mpcModleProperty.getModlepinsId(), mpcModleProperty);
         }
         String filterpath = System.getProperty("user.dir") + "\\" + pyproxyexecute;
-        mpcexecutepythonbridge = new ExecutePythonBridge(filterpath, "127.0.0.1", port, mpcscript, getModleId() + "");
+        mpcexecutepythonbridge = new ExecutePythonBridge(getModleId(),bridgeCache,filterpath, "127.0.0.1", port, mpcscript, getModleId() + "");
     }
 
 

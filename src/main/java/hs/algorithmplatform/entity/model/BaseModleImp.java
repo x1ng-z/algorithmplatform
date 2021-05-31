@@ -2,10 +2,12 @@ package hs.algorithmplatform.entity.model;
 
 import com.alibaba.fastjson.JSONObject;
 import hs.algorithmplatform.entity.ModleSight;
+import hs.algorithmplatform.entity.bean.BridgeInfo;
 import lombok.Data;
 import org.springframework.web.context.request.async.DeferredResult;
 
 import java.time.Instant;
+import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -69,7 +71,7 @@ public abstract class BaseModleImp implements Modle {
     public abstract  void outprocess(JSONObject outdata) ;
 
     @Override
-    public abstract void init();
+    public abstract void init(Map<Long, BridgeInfo> bridgeCache);
 
     /**
      * 响应反馈

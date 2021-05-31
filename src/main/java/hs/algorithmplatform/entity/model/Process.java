@@ -1,6 +1,9 @@
 package hs.algorithmplatform.entity.model;
 
 import com.alibaba.fastjson.JSONObject;
+import hs.algorithmplatform.entity.bean.BridgeInfo;
+
+import java.util.Map;
 
 /**
  * @author zzx
@@ -15,5 +18,5 @@ public interface Process   {
 
     void outprocess(JSONObject outdata);
 
-    void init();
+    void init(Map<Long, BridgeInfo> bridgeCache);
 }

@@ -1,5 +1,6 @@
 package hs.algorithmplatform.config;
 
+import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.context.request.async.DeferredResultProcessingInterceptorAdapter;
 import org.springframework.web.servlet.config.annotation.AsyncSupportConfigurer;
@@ -11,6 +12,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
  * @version 1.0
  * @date 2021/3/9 7:57
  */
+@Configuration
 public class AsyncQuestconfig implements WebMvcConfigurer {
     @Override
     public void configureAsyncSupport(AsyncSupportConfigurer configurer) {

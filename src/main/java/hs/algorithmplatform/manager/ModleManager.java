@@ -1,5 +1,7 @@
 package hs.algorithmplatform.manager;
 
+import hs.algorithmplatform.entity.bean.AvailableResult;
+import hs.algorithmplatform.entity.bean.BridgeInfo;
 import hs.algorithmplatform.entity.model.BaseModleImp;
 import hs.algorithmplatform.entity.model.Modle;
 import hs.algorithmplatform.entity.model.controlmodle.MPCModle;
@@ -21,6 +23,7 @@ import javax.annotation.PreDestroy;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author zzx
@@ -28,7 +31,7 @@ import java.util.concurrent.ExecutorService;
  * @date 2021/1/26 8:24
  */
 @Component
-public class ModleManager {
+public class ModleManager implements Runnable {
     private Logger logger = LoggerFactory.getLogger(ModleManager.class);
 
 
@@ -58,7 +61,12 @@ public class ModleManager {
     /***memory**/
     private Map<Long, Modle> modlePool = new ConcurrentHashMap();
 
+    /***execute msg bridge info.key=modelid*/
+    private Map<Long, BridgeInfo> bridgeInfoPool = new ConcurrentHashMap();
+
+
     private ExecutorService executethreadpool;
+    private ExecutorService msgconstorthreadpool;
     private IOServer ioServer;
 
 
@@ -75,11 +83,13 @@ public class ModleManager {
             @Value("${mpcscrip}") String mpcscrip,
             @Value("${oceandir}") String oceandir,
             @Value("${pydriverport}") String pydriverport,
-            @Qualifier("executethreadpool") ExecutorService executethreadpool
-    ) {
+            @Qualifier("executethreadpool") ExecutorService executethreadpool,
+            @Qualifier("msgComstorThreadPool") ExecutorService msgconstorthreadpool
+
+            ) {
         this.executethreadpool = executethreadpool;
+        this.msgconstorthreadpool = msgconstorthreadpool;
         this.pySessionManager = pySessionManager;
-//        this.projectOperaterImp = projectOperaterImp;
         this.pyproxyexecute = pyproxyexecute;
         this.mpcpinnumber = mpcpinnumber;
         this.filterscript = filterscript;
@@ -90,73 +100,107 @@ public class ModleManager {
         this.pydriverport = pydriverport;
         this.ioServer = ioServer;
         ioServer.getNettyServerInitializer().msgDecoder_inbound.setModleManager(this);
+        executethreadpool.execute(this);
+    }
+
+
+    @Override
+    public void run() {
+        try {
+
+            while (!Thread.currentThread().isInterrupted()) {
+                try {
+                    //遍历处理桥接流数据处理，以防止线程阻塞
+                    bridgeInfoPool.values().stream().parallel().forEach(bridgeInfo -> {
+                        AvailableResult availableResult = bridgeInfo.isNeedRead();
+                        if (availableResult.getIsReady()) {
+                            msgconstorthreadpool.execute(new Runnable() {
+                                @Override
+                                public void run() {
+                                    bridgeInfo.readStdOutOrErr(availableResult);
+                                }
+                            });
+                        }
+                    });
+                    TimeUnit.MILLISECONDS.sleep(1000);
+
+                }catch (InterruptedException e){
+                    return;
+                }catch (Exception e) {
+                    logger.error(e.getMessage(), e);
+                }
+            }
+
+
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        }
     }
 
 
     @PreDestroy
     public void destory() {
         for (Modle modle : modlePool.values()) {
-                BaseModleImp baseModleImp = (BaseModleImp) modle;
-                if (baseModleImp != null) {
-                    baseModleImp.destory();
-                }
+            BaseModleImp baseModleImp = (BaseModleImp) modle;
+            if (baseModleImp != null) {
+                baseModleImp.destory();
+            }
         }
     }
 
     public void activeModle(Modle modle) {
         if (modle != null) {
-                if (modle instanceof MPCModle) {
-                    MPCModle mpcmodle = (MPCModle) modle;
-                    mpcmodle.toBeRealModle(
-                            this.mpcscrip,
-                            this.simulatorscript,
-                            this.mpcpinnumber,
-                            this.pySessionManager,
-                            this.pydriverport,
-                            this.pyproxyexecute);
-                    mpcmodle.init();
-                    mpcmodle.connect();
+            if (modle instanceof MPCModle) {
+                MPCModle mpcmodle = (MPCModle) modle;
+                mpcmodle.toBeRealModle(
+                        this.mpcscrip,
+                        this.simulatorscript,
+                        this.mpcpinnumber,
+                        this.pySessionManager,
+                        this.pydriverport,
+                        this.pyproxyexecute);
+                mpcmodle.init(bridgeInfoPool);
+                mpcmodle.connect();
 
-                } else if (modle instanceof PIDModle) {
-                    PIDModle pidmodle = (PIDModle) modle;
-                    pidmodle.toBeRealModle(this.pySessionManager, this.pidscript, this.pydriverport, this.pyproxyexecute);
-                    pidmodle.init();
-                    pidmodle.connect();
+            } else if (modle instanceof PIDModle) {
+                PIDModle pidmodle = (PIDModle) modle;
+                pidmodle.toBeRealModle(this.pySessionManager, this.pidscript, this.pydriverport, this.pyproxyexecute);
+                pidmodle.init(bridgeInfoPool);
+                pidmodle.connect();
 
-                } else if (modle instanceof CUSTOMIZEModle) {
-                    CUSTOMIZEModle customizeModle = (CUSTOMIZEModle) modle;
-                    customizeModle.toBeRealModle(this.pySessionManager, this.pydriverport, this.pyproxyexecute);
-                    customizeModle.init();
-                    customizeModle.connect();
-                } else if (modle instanceof FilterModle) {
-                    FilterModle filterModle = (FilterModle) modle;
-                    filterModle.toBeRealModle(this.pySessionManager, this.filterscript, this.pydriverport, this.pyproxyexecute);
-                    filterModle.init();
-                    filterModle.connect();
-                } else if (modle instanceof INModle) {
-                    INModle inModle = (INModle) modle;
-                    inModle.toBeRealModle(this.oceandir);
-                    inModle.init();
-                    inModle.connect();
-                } else if (modle instanceof OUTModle) {
-                    OUTModle outModle = (OUTModle) modle;
-                    outModle.toBeRealModle(this.oceandir);
-                    outModle.init();
-                    outModle.connect();
-                }
-            modlePool.put(((BaseModleImp)modle).getModleId(),modle);
+            } else if (modle instanceof CUSTOMIZEModle) {
+                CUSTOMIZEModle customizeModle = (CUSTOMIZEModle) modle;
+                customizeModle.toBeRealModle(this.pySessionManager, this.pydriverport, this.pyproxyexecute);
+                customizeModle.init(bridgeInfoPool);
+                customizeModle.connect();
+            } else if (modle instanceof FilterModle) {
+                FilterModle filterModle = (FilterModle) modle;
+                filterModle.toBeRealModle(this.pySessionManager, this.filterscript, this.pydriverport, this.pyproxyexecute);
+                filterModle.init(bridgeInfoPool);
+                filterModle.connect();
+            } else if (modle instanceof INModle) {
+                INModle inModle = (INModle) modle;
+                inModle.toBeRealModle(this.oceandir);
+                inModle.init(bridgeInfoPool);
+                inModle.connect();
+            } else if (modle instanceof OUTModle) {
+                OUTModle outModle = (OUTModle) modle;
+                outModle.toBeRealModle(this.oceandir);
+                outModle.init(bridgeInfoPool);
+                outModle.connect();
+            }
+            modlePool.put(((BaseModleImp) modle).getModleId(), modle);
         }
     }
 
     /**
      * 从pool中移除模型，并调用destory
-     * */
-    public void stopAndRemoveModle(long modleid){
-        Modle modle=modlePool.remove(modleid);
-        ((BaseModleImp)modle).destory();
+     */
+    public void stopAndRemoveModle(long modleid) {
+        Modle modle = modlePool.remove(modleid);
+        ((BaseModleImp) modle).destory();
 
     }
-
 
 
     public Modle getspecialModle(long modleid) {
@@ -164,12 +208,9 @@ public class ModleManager {
     }
 
 
-    public Map<Long, Modle> getAllModel(){
+    public Map<Long, Modle> getAllModel() {
         return modlePool;
     }
-
-
-
 
 
 }

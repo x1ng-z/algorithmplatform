@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSONObject;
 import hs.algorithmplatform.entity.DTO.pid.respon.PidData;
 import hs.algorithmplatform.entity.DTO.pid.respon.PidRespon;
 import hs.algorithmplatform.entity.DTO.pid.respon.PidmvData;
+import hs.algorithmplatform.entity.bean.BridgeInfo;
 import hs.algorithmplatform.entity.model.BaseModleImp;
 import hs.algorithmplatform.entity.model.BaseModlePropertyImp;
 import hs.algorithmplatform.entity.model.Modle;
@@ -393,16 +394,14 @@ public class PIDModle extends BaseModleImp {
 
 
     @Override
-    public void init() {
+    public void init(Map<Long, BridgeInfo> bridgeCache) {
         indexproperties = new HashMap<>();
         for (ModleProperty modleProperty : propertyImpList) {
             BaseModlePropertyImp baseModlePropertyImp = (BaseModlePropertyImp) modleProperty;
             indexproperties.put(baseModlePropertyImp.getModlepinsId(), baseModlePropertyImp);
         }
-
-
         String filterpath = System.getProperty("user.dir") + "\\" + pyproxyexecute;
-        executepythonbridge = new ExecutePythonBridge(filterpath, "127.0.0.1", port, pidscript, getModleId() + "");
+        executepythonbridge = new ExecutePythonBridge(getModleId(),bridgeCache,filterpath, "127.0.0.1", port, pidscript, getModleId() + "");
     }
 
 

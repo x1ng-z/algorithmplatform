@@ -3,6 +3,7 @@ package hs.algorithmplatform.entity.model.filtermodle;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
+import hs.algorithmplatform.entity.bean.BridgeInfo;
 import hs.algorithmplatform.entity.model.BaseModleImp;
 import hs.algorithmplatform.entity.model.BaseModlePropertyImp;
 import hs.algorithmplatform.entity.model.Modle;
@@ -227,14 +228,14 @@ public class FilterModle extends BaseModleImp {
     }
 
     @Override
-    public void init() {
+    public void init(Map<Long, BridgeInfo> bridgeCache) {
         indexproperties = new HashMap<>();
         for (ModleProperty modleProperty : propertyImpList) {
             BaseModlePropertyImp baseModlePropertyImp = (BaseModlePropertyImp) modleProperty;
             indexproperties.put(baseModlePropertyImp.getModlepinsId(), baseModlePropertyImp);
         }
         String filterpath = System.getProperty("user.dir") + "\\" + pyproxyexecute;
-        executepythonbridge = new ExecutePythonBridge(filterpath, "127.0.0.1", port, filterscript, getModleId() + "");
+        executepythonbridge = new ExecutePythonBridge(getModleId(),bridgeCache,filterpath, "127.0.0.1", port, filterscript, getModleId() + "");
     }
 
     @Override

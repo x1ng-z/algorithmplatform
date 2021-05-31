@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
 import hs.algorithmplatform.entity.ResponTimeSerise;
+import hs.algorithmplatform.entity.bean.BridgeInfo;
 import hs.algorithmplatform.entity.model.BaseModleImp;
 import hs.algorithmplatform.entity.model.ModleProperty;
 import hs.algorithmplatform.entity.model.modlerproerty.MPCModleProperty;
@@ -14,6 +15,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import static hs.algorithmplatform.entity.model.controlmodle.MPCModle.*;
 
@@ -619,8 +621,8 @@ public class SimulatControlModle extends BaseModleImp {
     }
 
     @Override
-    public void init() {
-
+    public void init(Map<Long, BridgeInfo> bridgeCache) {
+        //do nothing
     }
 
     /**
